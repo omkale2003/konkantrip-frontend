@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Segoe UI", sans-serif;
+
+  --color-konkan-50: #f0f9f7;
+  --color-konkan-100: #d9f0eb;
+  --color-konkan-200: #b6e1d8;
+  --color-konkan-300: #86c9bc;
+  --color-konkan-400: #52ad9d;
+  --color-konkan-500: #338f81;
+  --color-konkan-600: #287368;
+  --color-konkan-700: #245d55;
+  --color-konkan-800: #204b46;
+  --color-konkan-900: #1e3f3b;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
