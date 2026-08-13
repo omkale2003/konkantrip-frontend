@@ -106,7 +106,7 @@ function ContactStep({
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Provide the contact details guests and KonkanTrip can use to reach your property.
+              Provide the contact details guests and KonkanTrip&trade; can use to reach your property.
             </p>
           </div>
         </div>

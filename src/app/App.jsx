@@ -5,7 +5,7 @@ function App() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-6">
       <div className="text-center">
-        <h1 className="mb-2 text-4xl font-bold text-slate-900">KonkanTrip</h1>
+        <h1 className="mb-2 text-4xl font-bold text-slate-900">KonkanTrip&trade;</h1>
         <p className="mb-8 text-lg text-slate-600">Property Owner Portal</p>
         
         <div className="flex items-center justify-center gap-4">

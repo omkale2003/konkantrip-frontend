@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 
 import Button from "../../../components/ui/Button/Button.jsx";
 import Input from "../../../components/ui/Input/Input.jsx";
@@ -10,8 +11,10 @@ import { useRegister } from "../hooks/useRegister.js";
 import { registerSchema } from "../schemas/auth.schema.js";
 
 function RegisterPage() {
+  const navigate = useNavigate();
   const [serverError, setServerError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -26,6 +29,7 @@ function RegisterPage() {
       phone: "",
       email: "",
       password: "",
+      confirm_password: "",
     },
   });
 
@@ -33,15 +37,12 @@ function RegisterPage() {
 
   const onSubmit = (formData) => {
     setServerError("");
-    setSuccessMessage("");
 
     registerMutation.mutate(formData, {
       onSuccess: (data) => {
-        setSuccessMessage(
-          data?.message || "Property owner registered successfully"
-        );
-
+        const msg = data?.message || "Property owner registered successfully. Please log in.";
         reset();
+        navigate("/login", { state: { message: msg } });
       },
 
       onError: (error) => {
@@ -60,7 +61,7 @@ function RegisterPage() {
         {/* Header */}
         <header className="mb-6">
           <div className="mb-4 text-lg font-bold text-konkan-700">
-            KonkanTrip
+            KonkanTrip&trade;
           </div>
 
           <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">
@@ -68,36 +69,17 @@ function RegisterPage() {
           </h1>
 
           <p className="m-0 text-sm leading-6 text-slate-600">
-            Register to manage your properties and bookings on KonkanTrip.
+            Register to manage your properties and bookings on KonkanTrip&trade;.
           </p>
         </header>
 
-        {/* Error Message */}
+        {/* Server Error Message */}
         {serverError && (
           <div
             className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
             role="alert"
           >
             {serverError}
-          </div>
-        )}
-
-        {/* Success Message */}
-        {successMessage && (
-          <div
-            className="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4"
-            role="status"
-          >
-            <p className="mb-3 text-sm font-medium text-emerald-700">
-              {successMessage}
-            </p>
-
-            <Link
-              to="/login"
-              className="inline-flex items-center justify-center rounded-lg bg-konkan-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-konkan-700"
-            >
-              Go to Login
-            </Link>
           </div>
         )}
 
@@ -155,15 +137,51 @@ function RegisterPage() {
             {...register("email")}
           />
 
+          <div className="flex flex-col gap-1">
+            <Input
+              id="password"
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Create a password"
+              autoComplete="new-password"
+              required
+              error={errors.password?.message}
+              {...register("password")}
+              rightElement={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="hover:text-slate-600 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              }
+            />
+            <p className="text-xs text-slate-500 ml-1">
+              Must be at least 8 characters, and contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+            </p>
+          </div>
+
           <Input
-            id="password"
-            label="Password"
-            type="password"
-            placeholder="Create a password"
+            id="confirm_password"
+            label="Confirm Password"
+            type={showConfirmPassword ? "text" : "password"}
+            placeholder="Confirm your password"
             autoComplete="new-password"
             required
-            error={errors.password?.message}
-            {...register("password")}
+            error={errors.confirm_password?.message}
+            {...register("confirm_password")}
+            rightElement={
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="hover:text-slate-600 focus:outline-none"
+                aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            }
           />
 
           <Button

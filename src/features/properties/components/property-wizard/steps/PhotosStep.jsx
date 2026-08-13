@@ -90,6 +90,8 @@ function PhotosStep({
         size: file.size,
         type: file.type,
         previewUrl,
+        image_title: file.name,
+        image_alt_text: "",
       });
     }
 
@@ -115,6 +117,14 @@ function PhotosStep({
     });
   };
 
+  const updateStagedFile = (id, field, value) => {
+    setStagedFiles((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
   const handleUploadStagedFiles = async () => {
     if (stagedFiles.length === 0 || !propertyId) return;
 
@@ -132,7 +142,8 @@ function PhotosStep({
           propertyId,
           imageData: {
             image_type_id: defaultTypeId,
-            image_title: item.name,
+            image_title: item.image_title,
+            image_alt_text: item.image_alt_text,
             cdn_url: dataUrl,
             mime_type: item.type,
             file_extension: ext,
@@ -172,6 +183,18 @@ function PhotosStep({
       });
     } catch (err) {
       console.error("Failed to set primary image:", err);
+    }
+  };
+
+  const handleUpdateImageDetails = async (imageId, field, value) => {
+    try {
+      await updateImageMutation.mutateAsync({
+        propertyId,
+        imageId,
+        payload: { [field]: value },
+      });
+    } catch (err) {
+      console.error("Failed to update image details:", err);
     }
   };
 
@@ -287,10 +310,15 @@ function PhotosStep({
       {/* Staged Previews (Files selected for upload) */}
       {stagedFiles.length > 0 && (
         <section className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900">
-              Selected Photos to Upload ({stagedFiles.length})
-            </h3>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">
+                Selected Photos to Upload ({stagedFiles.length})
+              </h3>
+              <p className="mt-1 text-xs text-slate-500">
+                <strong>Tip:</strong> Add a descriptive Title and Alt Text before uploading. These help improve your property's SEO and accessibility.
+              </p>
+            </div>
 
             <button
               type="button"
@@ -324,11 +352,22 @@ function PhotosStep({
                   </button>
                 </div>
 
-                <div className="mt-2 min-w-0">
-                  <p className="truncate text-xs font-medium text-slate-800">
-                    {item.name}
-                  </p>
-                  <p className="text-[11px] text-slate-400">
+                <div className="mt-2 min-w-0 flex flex-col gap-1.5">
+                  <input
+                    type="text"
+                    value={item.image_title}
+                    onChange={(e) => updateStagedFile(item.id, "image_title", e.target.value)}
+                    placeholder="Image Title"
+                    className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <input
+                    type="text"
+                    value={item.image_alt_text}
+                    onChange={(e) => updateStagedFile(item.id, "image_alt_text", e.target.value)}
+                    placeholder="Alt Text"
+                    className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <p className="text-[11px] text-slate-400 mt-0.5">
                     {formatBytes(item.size)}
                   </p>
                 </div>
@@ -340,10 +379,15 @@ function PhotosStep({
 
       {/* Uploaded Property Gallery */}
       <section className="space-y-4 border-t border-slate-200 pt-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-slate-900">
-            Property Photo Gallery ({propertyImages.length})
-          </h3>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-slate-900">
+              Property Photo Gallery ({propertyImages.length})
+            </h3>
+            <p className="mt-1 text-xs text-slate-500 max-w-2xl">
+              Click the Title and Alt Text fields below any image to edit them. A good title might be <em>"Luxury Pool View"</em>, and alt text should describe the image for screen readers (e.g., <em>"Large infinity pool at sunset"</em>).
+            </p>
+          </div>
 
           {isLoading && (
             <span className="text-xs text-emerald-700">Loading gallery...</span>
@@ -401,11 +445,30 @@ function PhotosStep({
                   </div>
 
                   {/* Info & Title */}
-                  <div className="mt-3 flex-1">
-                    <p className="truncate text-xs font-medium text-slate-800">
-                      {img.image_title || `Photo ${index + 1}`}
-                    </p>
-                    <p className="text-[11px] text-slate-400">
+                  <div className="mt-3 flex-1 flex flex-col gap-1.5">
+                    <input
+                      type="text"
+                      defaultValue={img.image_title || ""}
+                      onBlur={(e) => {
+                        if (e.target.value !== (img.image_title || "")) {
+                          handleUpdateImageDetails(img.image_id, "image_title", e.target.value);
+                        }
+                      }}
+                      placeholder={`Photo ${index + 1}`}
+                      className="w-full rounded border border-transparent bg-slate-50 px-2 py-1 text-xs font-medium text-slate-800 placeholder:text-slate-400 hover:border-slate-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <input
+                      type="text"
+                      defaultValue={img.image_alt_text || ""}
+                      onBlur={(e) => {
+                        if (e.target.value !== (img.image_alt_text || "")) {
+                          handleUpdateImageDetails(img.image_id, "image_alt_text", e.target.value);
+                        }
+                      }}
+                      placeholder="Alt text"
+                      className="w-full rounded border border-transparent bg-slate-50 px-2 py-1 text-xs text-slate-800 placeholder:text-slate-400 hover:border-slate-200 focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <p className="px-2 text-[11px] text-slate-400">
                       {img.image_type_name || "Gallery Photo"}
                     </p>
                   </div>

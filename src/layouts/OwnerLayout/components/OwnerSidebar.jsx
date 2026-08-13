@@ -66,7 +66,7 @@ function OwnerSidebar() {
       <div className="flex h-18 items-center border-b border-slate-100 px-6">
         <div>
           <p className="m-0 text-lg font-bold text-konkan-700">
-            KonkanTrip
+            KonkanTrip&trade;
           </p>
 
           <p className="m-0 text-xs text-slate-500">
@@ -110,7 +110,7 @@ function OwnerSidebar() {
       {/* Footer */}
       <div className="border-t border-slate-100 p-4">
         <p className="m-0 text-xs leading-5 text-slate-400">
-          KonkanTrip Property Management
+          KonkanTrip&trade; Property Management
         </p>
       </div>
     </aside>

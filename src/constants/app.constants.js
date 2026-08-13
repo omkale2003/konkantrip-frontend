@@ -1,4 +1,4 @@
-export const APP_NAME = "KonkanTrip";
+export const APP_NAME = "KonkanTrip™";
 
 export const APP_PORTAL_NAME = "Property Owner Portal";
 

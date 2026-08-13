@@ -11,7 +11,12 @@ export const getPropertyDocuments = async (propertyId) => {
 export const uploadPropertyDocument = async (propertyId, documentData) => {
   const response = await apiClient.post(
     API_ENDPOINTS.PROPERTIES.DOCUMENTS(propertyId),
-    documentData
+    documentData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
   return response.data;
 };

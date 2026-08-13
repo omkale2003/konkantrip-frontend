@@ -24,7 +24,7 @@ const DEFAULT_NOTIFICATIONS = [
   {
     id: 2,
     title: "Account Verified",
-    message: "Your property owner account is verified and active on KonkanTrip.",
+    message: "Your property owner account is verified and active on KonkanTrip™.",
     time: "2 hours ago",
     unread: true,
     type: "success",
@@ -89,7 +89,7 @@ function OwnerHeader({ onMenuClick }) {
 
         <div className="lg:hidden">
           <p className="m-0 text-base font-bold text-konkan-700">
-            KonkanTrip
+            KonkanTrip&trade;
           </p>
         </div>
 

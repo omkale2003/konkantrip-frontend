@@ -8,6 +8,7 @@ import { createTestQueryClient } from "../../../test/testUtils.jsx";
 import { QueryClientProvider } from "@tanstack/react-query";
 import * as locationsApi from "../api/propertyLocations.api.js";
 import * as propertiesApi from "../api/properties.api.js";
+import * as propertyContactsApi from "../api/propertyContacts.api.js";
 
 vi.mock("../api/propertyLocations.api.js", () => ({
   getPropertyLocation: vi.fn(),
@@ -17,9 +18,6 @@ vi.mock("../api/propertyLocations.api.js", () => ({
 }));
 
 vi.mock("../api/properties.api.js", () => ({
-  getPropertyContacts: vi.fn(),
-  savePropertyContact: vi.fn(),
-  getContactTypes: vi.fn(),
   getPropertyAmenities: vi.fn(),
   savePropertyAmenities: vi.fn(),
   getMasterAmenities: vi.fn(),
@@ -27,6 +25,13 @@ vi.mock("../api/properties.api.js", () => ({
   savePropertyPolicies: vi.fn(),
   getPropertyDocuments: vi.fn(),
   getDocumentTypes: vi.fn(),
+}));
+
+vi.mock("../api/propertyContacts.api.js", () => ({
+  getPropertyContacts: vi.fn(),
+  createPropertyContact: vi.fn(),
+  updatePropertyContact: vi.fn(),
+  getContactTypesLookup: vi.fn(),
 }));
 
 describe("Property Sub-Resources Hooks Suite", () => {
@@ -64,7 +69,7 @@ describe("Property Sub-Resources Hooks Suite", () => {
   });
 
   it("fetches property contacts using usePropertyContacts", async () => {
-    propertiesApi.getPropertyContacts.mockResolvedValueOnce({
+    propertyContactsApi.getPropertyContacts.mockResolvedValueOnce({
       success: true,
       data: [{ contact_name: "Owner John" }],
     });

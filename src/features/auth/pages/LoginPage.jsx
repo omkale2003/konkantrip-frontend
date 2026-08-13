@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 
 import Button from "../../../components/ui/Button/Button.jsx";
 import Input from "../../../components/ui/Input/Input.jsx";
@@ -14,8 +15,11 @@ import { loginSchema } from "../schemas/auth.schema.js";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const successMessage = location.state?.message;
 
   const [serverError, setServerError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const savedEmail = typeof window !== "undefined" ? localStorage.getItem("remembered_owner_email") || "" : "";
 
@@ -81,7 +85,7 @@ function LoginPage() {
         {/* Header */}
         <header className="mb-6">
           <div className="mb-4 text-lg font-bold text-konkan-700">
-            KonkanTrip
+            KonkanTrip&trade;
           </div>
 
           <h1 className="mb-2 text-2xl font-semibold tracking-tight text-slate-900">
@@ -100,6 +104,16 @@ function LoginPage() {
             role="alert"
           >
             {serverError}
+          </div>
+        )}
+
+        {/* Success Message from Redirect */}
+        {successMessage && (
+          <div
+            className="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+            role="status"
+          >
+            {successMessage}
           </div>
         )}
 
@@ -123,12 +137,22 @@ function LoginPage() {
           <Input
             id="password"
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
             autoComplete="current-password"
             required
             error={errors.password?.message}
             {...register("password")}
+            rightElement={
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="hover:text-slate-600 focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            }
           />
 
           {/* Remember me Checkbox */}

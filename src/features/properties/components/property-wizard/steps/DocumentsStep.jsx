@@ -141,26 +141,27 @@ function DocumentsStep({
     setFileError("");
 
     try {
-      const dataUrl = await readFileAsDataURL(selectedFile);
-      const ext = selectedFile.name.split(".").pop() || "pdf";
       const selectedType = docTypes.find(
         (t) => String(t.document_type_id) === String(selectedTypeId)
       );
 
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("document_type_id", Number(selectedTypeId));
+      
+      if (documentNumber.trim()) {
+        formData.append("document_number", documentNumber.trim());
+      }
+      
+      formData.append("document_title", selectedType?.document_name || selectedFile.name);
+      // Optional fields that the backend falls back to if multer doesn't provide them, 
+      // but multer WILL provide them. We include them just in case.
+      formData.append("original_file_name", selectedFile.name);
+      formData.append("stored_file_name", `${Date.now()}-${selectedFile.name}`);
+
       await uploadDocMutation.mutateAsync({
         propertyId,
-        documentData: {
-          document_type_id: Number(selectedTypeId),
-          document_number: documentNumber.trim() || undefined,
-          document_title: selectedType?.document_name || selectedFile.name,
-          original_file_name: selectedFile.name,
-          stored_file_name: `${Date.now()}-${selectedFile.name}`,
-          file_extension: ext,
-          mime_type: selectedFile.type,
-          file_size: selectedFile.size,
-          cdn_url: dataUrl,
-          verification_status: "Pending",
-        },
+        documentData: formData,
       });
 
       // Clear upload form after success

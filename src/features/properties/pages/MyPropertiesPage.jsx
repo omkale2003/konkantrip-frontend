@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { useProperties } from "../hooks/useProperties.js";
+import { PropertyCompletionIndicator } from "../components/PropertyCompletionIndicator.jsx";
 import storageService from "../../../services/storage.service.js";
 
 const PROPERTY_STATUSES = [
@@ -406,6 +407,11 @@ function MyPropertiesPage() {
                         </p>
                       </div>
                     </div>
+
+                    {/* =================================================
+                        COMPLETION INDICATOR
+                    ================================================== */}
+                    <PropertyCompletionIndicator property={property} />
 
                     {/* =================================================
                         FOOTER / MANAGE

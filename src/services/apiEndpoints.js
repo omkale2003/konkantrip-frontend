@@ -46,9 +46,17 @@ export const API_ENDPOINTS = {
     MASTER: "/lookups/master",
     AMENITIES: "/lookups/amenities",
     AMENITY_CATEGORIES: "/lookups/amenities/categories",
-    ROOMS: "/lookups/rooms",
+    ROOMS: {
+      BED_TYPES: "/lookups/rooms/bed-types",
+      ROOM_TYPES: "/lookups/rooms/room-types",
+      ROOM_STATUS: "/lookups/rooms/room-status",
+      ROOM_VIEWS: "/lookups/rooms/room-views",
+      ROOM_IMAGE_TYPES: "/lookups/rooms/room-image-types",
+      FACILITY_CATEGORIES: "/lookups/rooms/facility-categories",
+      FACILITIES: "/lookups/rooms/facilities",
+    },
     CONTACT_TYPES: "/lookups/master/contact-types",
     PROPERTY_IMAGE_TYPES: "/lookups/master/property-image-types",
     DOCUMENT_TYPES: "/lookups/master/document-types",
   },
-};
+};

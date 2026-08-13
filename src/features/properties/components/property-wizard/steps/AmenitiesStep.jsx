@@ -32,6 +32,7 @@ function AmenitiesStep({
   serverError = "",
 }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Amenities");
 
   // Initialize selected IDs from initialValues
   const [selectedIds, setSelectedIds] = useState(() => {
@@ -39,6 +40,17 @@ function AmenitiesStep({
       return new Set(initialValues.map((item) => Number(item.amenity_id)));
     }
     return new Set();
+  });
+
+  // Initialize remarks mapping from initialValues
+  const [remarks, setRemarks] = useState(() => {
+    const init = {};
+    if (Array.isArray(initialValues) && initialValues.length > 0) {
+      initialValues.forEach((item) => {
+        if (item.remarks) init[Number(item.amenity_id)] = item.remarks;
+      });
+    }
+    return init;
   });
 
   // Master amenities catalog query
@@ -49,30 +61,36 @@ function AmenitiesStep({
     [masterData]
   );
 
-  // Filter amenities by search term
-  const filteredAmenities = useMemo(() => {
-    if (!searchTerm.trim()) return masterAmenities;
-    const term = searchTerm.toLowerCase().trim();
-    return masterAmenities.filter(
-      (a) =>
-        a.amenity_name?.toLowerCase().includes(term) ||
-        a.category_name?.toLowerCase().includes(term) ||
-        a.amenity_description?.toLowerCase().includes(term)
-    );
-  }, [masterAmenities, searchTerm]);
+  // Derive categories
+  const categories = useMemo(() => {
+    const cats = new Set();
+    masterAmenities.forEach((a) => {
+      cats.add(a.category_name || "General Amenities");
+    });
+    return ["All Amenities", ...Array.from(cats).sort()];
+  }, [masterAmenities]);
 
-  // Group filtered amenities by category
-  const groupedAmenities = useMemo(() => {
-    const groups = {};
-    for (const item of filteredAmenities) {
-      const cat = item.category_name || "General Amenities";
-      if (!groups[cat]) {
-        groups[cat] = [];
-      }
-      groups[cat].push(item);
+  // Filter amenities by search term and selected category
+  const filteredAmenities = useMemo(() => {
+    let result = masterAmenities;
+
+    if (selectedCategory !== "All Amenities") {
+      result = result.filter(
+        (a) => (a.category_name || "General Amenities") === selectedCategory
+      );
     }
-    return groups;
-  }, [filteredAmenities]);
+
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
+      result = result.filter(
+        (a) =>
+          a.amenity_name?.toLowerCase().includes(term) ||
+          a.category_name?.toLowerCase().includes(term) ||
+          a.amenity_description?.toLowerCase().includes(term)
+      );
+    }
+    return result;
+  }, [masterAmenities, searchTerm, selectedCategory]);
 
   const toggleAmenity = (amenityId) => {
     const id = Number(amenityId);
@@ -87,12 +105,27 @@ function AmenitiesStep({
     });
   };
 
+  const handleRemarkChange = (id, value) => {
+    setRemarks((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectPopular = () => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      masterAmenities.forEach((a) => {
+        if (a.is_popular) next.add(Number(a.amenity_id));
+      });
+      return next;
+    });
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
     const payload = Array.from(selectedIds).map((id) => ({
       amenity_id: id,
       is_available: true,
+      remarks: remarks[id] || "",
     }));
 
     if (typeof onSubmit === "function") {
@@ -116,9 +149,7 @@ function AmenitiesStep({
               Step 4
             </p>
 
-            <h2 className="text-xl font-semibold text-slate-900">
-              Amenities
-            </h2>
+            <h2 className="text-xl font-semibold text-slate-900">Amenities</h2>
 
             <p className="mt-1 text-sm text-slate-500">
               Select the facilities and services available at your property.
@@ -150,8 +181,17 @@ function AmenitiesStep({
           />
         </div>
 
-        <div className="text-sm font-medium text-slate-600">
-          Selected: <span className="font-semibold text-emerald-700">{selectedIds.size}</span> amenities
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex h-10 items-center justify-center rounded-lg bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 border border-emerald-100">
+            {selectedIds.size} amenities selected
+          </div>
+          <button
+            type="button"
+            onClick={handleSelectPopular}
+            className="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          >
+            Select popular
+          </button>
         </div>
       </section>
 
@@ -159,7 +199,9 @@ function AmenitiesStep({
       {isLoading && (
         <div className="py-12 text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-emerald-600" />
-          <p className="mt-3 text-sm text-slate-500">Loading amenities catalog...</p>
+          <p className="mt-3 text-sm text-slate-500">
+            Loading amenities catalog...
+          </p>
         </div>
       )}
 
@@ -167,100 +209,151 @@ function AmenitiesStep({
       {!isLoading && masterAmenities.length === 0 && (
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-8 text-center">
           <Sparkles className="mx-auto mb-2 h-8 w-8 text-slate-400" />
-          <h3 className="text-base font-semibold text-slate-800">No amenities available</h3>
+          <h3 className="text-base font-semibold text-slate-800">
+            No amenities available
+          </h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
             Please contact the administrator to configure property amenities.
           </p>
         </div>
       )}
 
-      {/* No Filter Results State */}
-      {!isLoading && masterAmenities.length > 0 && filteredAmenities.length === 0 && (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center">
-          <p className="text-sm text-slate-500">
-            No amenities match your search query "{searchTerm}".
-          </p>
-          <button
-            type="button"
-            onClick={() => setSearchTerm("")}
-            className="mt-3 text-xs font-semibold text-emerald-700 hover:underline"
-          >
-            Clear search
-          </button>
-        </div>
-      )}
+      {/* Layout Grid */}
+      {!isLoading && masterAmenities.length > 0 && (
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar - Categories */}
+          <div className="lg:w-56 xl:w-64 shrink-0">
+            <h3 className="mb-4 text-sm font-semibold text-slate-800">
+              Categories
+            </h3>
+            <ul className="space-y-1">
+              {categories.map((cat) => (
+                <li key={cat}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={[
+                      "w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors",
+                      selectedCategory === cat
+                        ? "bg-emerald-50 text-emerald-800 font-semibold"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+                    ].join(" ")}
+                  >
+                    {cat}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-      {/* Amenities Grid Grouped by Category */}
-      {!isLoading && Object.keys(groupedAmenities).length > 0 && (
-        <div className="space-y-6">
-          {Object.entries(groupedAmenities).map(([category, items]) => (
-            <div key={category} className="space-y-3">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {category} ({items.length})
+          {/* Main List */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+              <h3 className="text-sm font-semibold text-slate-800">
+                Available Amenities
               </h3>
+              <p className="text-xs text-slate-400">
+                Availability + optional remarks
+              </p>
+            </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {items.map((amenity) => {
-                  const isSelected = selectedIds.has(Number(amenity.amenity_id));
-                  const Icon = getAmenityIcon(amenity.amenity_icon, amenity.amenity_name);
+            <div className="space-y-3">
+              {filteredAmenities.map((amenity) => {
+                const isSelected = selectedIds.has(Number(amenity.amenity_id));
+                const Icon = getAmenityIcon(
+                  amenity.amenity_icon,
+                  amenity.amenity_name
+                );
 
-                  return (
-                    <button
-                      key={amenity.amenity_id}
-                      type="button"
-                      onClick={() => toggleAmenity(amenity.amenity_id)}
-                      className={[
-                        "group relative flex cursor-pointer items-center gap-3 rounded-xl border p-4 text-left transition-all duration-150",
-                        isSelected
-                          ? "border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-600"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50",
-                      ].join(" ")}
-                    >
-                      <div
+                return (
+                  <div
+                    key={amenity.amenity_id}
+                    className={[
+                      "flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border p-4 transition-all duration-150",
+                      isSelected
+                        ? "border-emerald-200 bg-emerald-50/30"
+                        : "border-slate-200 bg-white",
+                    ].join(" ")}
+                  >
+                    {/* Left: Checkbox & Info */}
+                    <div className="flex flex-1 items-center gap-4 min-w-0">
+                      <button
+                        type="button"
+                        onClick={() => toggleAmenity(amenity.amenity_id)}
                         className={[
-                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
+                          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-all",
                           isSelected
-                            ? "bg-emerald-700 text-white"
-                            : "bg-slate-100 text-slate-500 group-hover:bg-slate-200",
+                            ? "border-emerald-700 bg-emerald-700 text-white"
+                            : "border-slate-300 bg-white hover:border-slate-400",
                         ].join(" ")}
+                        aria-label={`Toggle ${amenity.amenity_name}`}
                       >
-                        <Icon className="h-4 w-4" />
+                        {isSelected && (
+                          <Check className="h-4 w-4 stroke-[3]" />
+                        )}
+                      </button>
+
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hidden sm:flex">
+                        <Icon className="h-5 w-5" />
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p
-                          className={[
-                            "truncate text-sm font-medium leading-snug",
-                            isSelected ? "font-semibold text-emerald-950" : "text-slate-800",
-                          ].join(" ")}
-                        >
+                        <p className="truncate text-sm font-semibold text-slate-900">
                           {amenity.amenity_name}
                         </p>
-
-                        {amenity.amenity_description && (
-                          <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">
+                        {amenity.is_popular ? (
+                          <p className="text-xs text-emerald-600 font-medium mt-0.5 flex items-center gap-1">
+                            <Sparkles className="h-3 w-3" /> Popular amenity
+                          </p>
+                        ) : amenity.amenity_description ? (
+                          <p className="truncate text-xs text-slate-500 mt-0.5">
                             {amenity.amenity_description}
                           </p>
-                        )}
+                        ) : null}
                       </div>
+                    </div>
 
-                      {/* Selection Check Indicator */}
-                      <div
+                    {/* Right: Remarks Input */}
+                    <div className="w-full sm:w-64 shrink-0">
+                      <input
+                        type="text"
+                        value={remarks[amenity.amenity_id] || ""}
+                        onChange={(e) =>
+                          handleRemarkChange(
+                            amenity.amenity_id,
+                            e.target.value
+                          )
+                        }
+                        placeholder="Add remarks (optional)"
                         className={[
-                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all",
+                          "w-full rounded-lg border px-3 py-2 text-sm transition-all focus:outline-none focus:ring-1",
                           isSelected
-                            ? "border-emerald-700 bg-emerald-700 text-white"
-                            : "border-slate-300 bg-white group-hover:border-slate-400",
+                            ? "border-emerald-200 bg-white text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-emerald-500"
+                            : "border-slate-100 bg-slate-50 text-slate-400 placeholder:text-slate-300 cursor-not-allowed",
                         ].join(" ")}
-                      >
-                        {isSelected && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                        disabled={!isSelected}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+
+              {filteredAmenities.length === 0 && (
+                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/50 p-8 text-center">
+                  <p className="text-sm text-slate-500">
+                    No amenities found for the selected criteria.
+                  </p>
+                </div>
+              )}
             </div>
-          ))}
+
+            <div className="mt-4 rounded-lg bg-slate-50 p-4 border border-slate-100">
+              <p className="text-xs text-slate-500">
+                Selected amenities can store availability and property-specific
+                remarks.
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

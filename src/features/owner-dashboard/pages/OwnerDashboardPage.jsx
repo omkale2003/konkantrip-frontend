@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 
 import storageService from "../../../services/storage.service.js";
 import { useProperties } from "../../properties/hooks/useProperties.js";
+import { PropertyCompletionIndicator } from "../../properties/components/PropertyCompletionIndicator.jsx";
 import { ROUTES } from "../../../constants/routes.js";
 
 function getStatusClasses(status) {
@@ -373,7 +374,7 @@ function OwnerDashboardPage() {
                 No properties listed yet
               </h3>
               <p className="mt-1 text-xs text-slate-500">
-                Start adding your properties to list them on KonkanTrip.
+                Start adding your properties to list them on KonkanTrip&trade;.
               </p>
               <Link
                 to={ROUTES.OWNER_ADD_PROPERTY}
@@ -426,6 +427,10 @@ function OwnerDashboardPage() {
                           </>
                         )}
                       </div>
+                    </div>
+
+                    <div className="mt-4 sm:mt-0 sm:w-1/4 sm:min-w-[150px]">
+                      <PropertyCompletionIndicator property={property} variant="compact" />
                     </div>
 
                     <Link

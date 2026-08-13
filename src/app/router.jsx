@@ -15,6 +15,8 @@ import AddPropertyPage from "../features/properties/pages/AddPropertyPage.jsx";
 import ManagePropertyPage from "../features/properties/pages/ManagePropertyPage.jsx";
 
 import RoomsPage from "../features/owner/pages/RoomsPage.jsx";
+import AddRoomPage from "../features/owner/pages/AddRoomPage.jsx";
+import EditRoomPage from "../features/owner/pages/EditRoomPage.jsx";
 import BookingsPage from "../features/owner/pages/BookingsPage.jsx";
 import AvailabilityPage from "../features/owner/pages/AvailabilityPage.jsx";
 import PricingPage from "../features/owner/pages/PricingPage.jsx";
@@ -70,6 +72,16 @@ const router = createBrowserRouter([
           {
             path: ROUTES.OWNER_ROOMS,
             element: <RoomsPage />,
+          },
+
+          {
+            path: "/owner/rooms/add",
+            element: <AddRoomPage />,
+          },
+
+          {
+            path: "/owner/rooms/:roomId/edit",
+            element: <EditRoomPage />,
           },
 
           {
