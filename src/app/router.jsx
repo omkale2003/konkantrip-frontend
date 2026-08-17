@@ -14,9 +14,9 @@ import MyPropertiesPage from "../features/properties/pages/MyPropertiesPage.jsx"
 import AddPropertyPage from "../features/properties/pages/AddPropertyPage.jsx";
 import ManagePropertyPage from "../features/properties/pages/ManagePropertyPage.jsx";
 
-import RoomsPage from "../features/owner/pages/RoomsPage.jsx";
-import AddRoomPage from "../features/owner/pages/AddRoomPage.jsx";
-import EditRoomPage from "../features/owner/pages/EditRoomPage.jsx";
+import RoomsPage from "../features/rooms/pages/RoomsPage.jsx";
+import AddRoomPage from "../features/rooms/pages/AddRoomPage.jsx";
+import EditRoomPage from "../features/rooms/pages/EditRoomPage.jsx";
 import BookingsPage from "../features/owner/pages/BookingsPage.jsx";
 import AvailabilityPage from "../features/owner/pages/AvailabilityPage.jsx";
 import PricingPage from "../features/owner/pages/PricingPage.jsx";

@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { useRooms } from "./useRooms.js";
+import { useRooms } from "../hooks/useRooms.js";
 import { createTestQueryClient } from "../../../test/testUtils.jsx";
 import { QueryClientProvider } from "@tanstack/react-query";
 import apiClient from "../../../services/apiClient.js";

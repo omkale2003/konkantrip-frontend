@@ -4,13 +4,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import Button from "../../../../components/ui/Button/Button.jsx";
+import Button from "../../../components/ui/Button/Button.jsx";
 import { 
   useRoomBeds, 
   useAddRoomBed, 
   useDeleteRoomBed, 
   useRoomLookups 
-} from "../../hooks/useRooms.js";
+} from "../hooks/useRooms.js";
 
 const bedSchema = z.object({
   bed_type_id: z.string().min(1, "Bed type is required"),
@@ -19,7 +19,7 @@ const bedSchema = z.object({
 
 function RoomBeds({ roomId }) {
   const { data: bedsData, isLoading: isLoadingBeds } = useRoomBeds(roomId);
-  const { data: bedTypesData } = useRoomLookups("bed-types");
+  const { data: bedTypesData } = useRoomLookups("BED_TYPES");
   
   const { mutateAsync: addBed, isPending: isAdding } = useAddRoomBed();
   const { mutateAsync: deleteBed, isPending: isDeleting } = useDeleteRoomBed();

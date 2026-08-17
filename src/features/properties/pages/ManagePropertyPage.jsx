@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -6,14 +7,14 @@ import {
   CheckCircle2,
   Clock3,
   Edit,
-  Eye,
   IndianRupee,
-  MapPin,
   Star,
   XCircle,
+  Trash2,
+  Loader2,
 } from "lucide-react";
 
-import { useProperty } from "../hooks/useProperties.js";
+import { useProperty, useDeleteProperty } from "../hooks/useProperties.js";
 import { PropertyCompletionIndicator } from "../components/PropertyCompletionIndicator.jsx";
 import { ROUTES } from "../../../constants/routes.js";
 
@@ -60,17 +61,21 @@ function ManagePropertyPage() {
   const { propertyId } = useParams();
   const navigate = useNavigate();
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteErrorMsg, setDeleteErrorMsg] = useState("");
+
   const { data: propertyResponse, isLoading, isError, error } = useProperty(propertyId);
+  const { mutateAsync: deleteProperty, isPending: isDeleting } = useDeleteProperty();
+
   const property = propertyResponse?.data;
 
   const handleEditProperty = () => {
-    // Write draft state so wizard resumes at step 1 for editing
     try {
       localStorage.setItem(
         "konkantrip_property_draft",
         JSON.stringify({
           propertyId: property.property_id,
-          currentStep: 1, // Start at step 1 for editing
+          currentStep: 1,
         })
       );
       navigate("/owner/properties/add?resume=true");
@@ -79,16 +84,42 @@ function ManagePropertyPage() {
     }
   };
 
+  const handleDeleteConfirm = async () => {
+    try {
+      setDeleteErrorMsg("");
+      await deleteProperty(propertyId);
+      setDeleteModalOpen(false);
+      navigate(ROUTES.OWNER_PROPERTIES);
+    } catch (err) {
+      setDeleteErrorMsg(
+        err.response?.data?.message || "Failed to delete property. Please try again."
+      );
+    }
+  };
+
   return (
     <div className="space-y-6 pb-12">
       {/* Back Link */}
-      <Link
-        to={ROUTES.OWNER_PROPERTIES}
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-emerald-700"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to My Properties
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          to={ROUTES.OWNER_PROPERTIES}
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-emerald-700"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to My Properties
+        </Link>
+
+        {property && (
+          <button
+            type="button"
+            onClick={() => setDeleteModalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50/50 px-3.5 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-100/70 hover:border-red-300 shadow-sm"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete Property
+          </button>
+        )}
+      </div>
 
       {isLoading && (
         <section className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-sm">
@@ -110,11 +141,8 @@ function ManagePropertyPage() {
 
       {!isLoading && !isError && property && (
         <>
-          {/* =========================================================
-              1. Header & Summary Card
-          ========================================================== */}
+          {/* Header & Summary Card */}
           <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Property Identity */}
             <div className="col-span-1 flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
               <div>
                 <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -145,9 +173,7 @@ function ManagePropertyPage() {
                       {property.property_category ? ` • ${property.property_category}` : ""}
                     </span>
                   </div>
-                  
-                  {/* Since location is stored in a subresource, we might not have it instantly in the basic property payload. 
-                      We'll show ID instead as a fallback quick info. */}
+
                   <div className="flex items-center gap-1.5">
                     <span className="font-mono text-xs font-medium text-slate-400">
                       ID: {property.property_id}
@@ -156,7 +182,6 @@ function ManagePropertyPage() {
                 </div>
               </div>
 
-              {/* Status Note */}
               {property.property_status === "Draft" && (
                 <div className="mt-6 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
                   This property is currently a draft. Complete all sections below to submit for approval.
@@ -168,16 +193,13 @@ function ManagePropertyPage() {
             <div className="col-span-1 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
               <h2 className="mb-1 text-sm font-semibold text-slate-900">Listing Readiness</h2>
               <p className="mb-4 text-xs text-slate-500">Track your progress toward going live.</p>
-              {/* No compact variant needed here since we have a dedicated card for it */}
               <div className="-mt-4">
                 <PropertyCompletionIndicator property={property} />
               </div>
             </div>
           </section>
 
-          {/* =========================================================
-              2. Quick Stats
-          ========================================================== */}
+          {/* Quick Stats */}
           <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
               <p className="mb-1 text-xs font-medium uppercase tracking-wider text-slate-500">
@@ -187,7 +209,7 @@ function ManagePropertyPage() {
                 {property.total_rooms ?? 0}
               </p>
             </div>
-            
+
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
               <p className="mb-1 text-xs font-medium uppercase tracking-wider text-slate-500">
                 Total Bookings
@@ -219,16 +241,15 @@ function ManagePropertyPage() {
             </div>
           </section>
 
-          {/* =========================================================
-              3. Management Actions
-          ========================================================== */}
+          {/* Management Tools */}
           <section>
             <h2 className="mb-4 text-lg font-semibold text-slate-900">
               Management Tools
             </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+
               <button
+                type="button"
                 onClick={handleEditProperty}
                 className="group flex flex-col items-start gap-3 rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:shadow-md"
               >
@@ -288,9 +309,61 @@ function ManagePropertyPage() {
                 </div>
               </Link>
 
+              <button
+                type="button"
+                onClick={() => setDeleteModalOpen(true)}
+                className="group flex flex-col items-start gap-3 rounded-xl border border-red-200 bg-white p-5 text-left shadow-sm transition hover:border-red-300 hover:bg-red-50 hover:shadow-md"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-red-700 transition group-hover:bg-red-600 group-hover:text-white">
+                  <Trash2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">Delete Property</h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Remove this property from active listings.
+                  </p>
+                </div>
+              </button>
+
             </div>
           </section>
 
+          {/* Delete Property Modal */}
+          {deleteModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+              <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4">
+                <h3 className="text-base font-bold text-slate-900">Delete Property</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  Are you sure you want to delete <span className="font-bold text-slate-900">{property.property_name}</span>? This action cannot be undone.
+                </p>
+
+                {deleteErrorMsg && (
+                  <div className="rounded-lg bg-red-50 p-3 border border-red-200 text-xs text-red-700">
+                    {deleteErrorMsg}
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteModalOpen(false)}
+                    disabled={isDeleting}
+                    className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeleteConfirm}
+                    disabled={isDeleting}
+                    className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete Property"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

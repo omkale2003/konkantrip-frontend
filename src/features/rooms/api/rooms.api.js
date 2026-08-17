@@ -7,6 +7,11 @@ export const getRoomLookups = async (lookupType) => {
   return response.data;
 };
 
+export const getAmenitiesLookup = async () => {
+  const response = await apiClient.get(API_ENDPOINTS.LOOKUPS.AMENITIES);
+  return response.data;
+};
+
 // Core Room CRUD
 export const getRooms = async (params = {}) => {
   const response = await apiClient.get(API_ENDPOINTS.ROOMS.LIST, { params });

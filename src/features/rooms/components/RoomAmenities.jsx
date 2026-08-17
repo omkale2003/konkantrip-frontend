@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 
-import Button from "../../../../components/ui/Button/Button.jsx";
+import Button from "../../../components/ui/Button/Button.jsx";
 import { 
   useRoomAmenities, 
   useAddRoomAmenity, 
   useDeleteRoomAmenity, 
-  useRoomLookups 
-} from "../../hooks/useRooms.js";
+  useAmenitiesLookup
+} from "../hooks/useRooms.js";
 
 function RoomAmenities({ roomId }) {
   const { data: amenitiesData, isLoading: isLoadingAmenities } = useRoomAmenities(roomId);
-  const { data: allAmenitiesData } = useRoomLookups("amenities"); // Assuming this fetches from /lookups/amenities
+  const { data: allAmenitiesData } = useAmenitiesLookup();
   
   const { mutateAsync: addAmenity, isPending: isAdding } = useAddRoomAmenity();
   const { mutateAsync: deleteAmenity, isPending: isDeleting } = useDeleteRoomAmenity();

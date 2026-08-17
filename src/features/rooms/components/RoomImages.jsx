@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Loader2, Plus, Trash2, Image as ImageIcon } from "lucide-react";
+import { Loader2, Trash2, Image as ImageIcon } from "lucide-react";
 
-import Button from "../../../../components/ui/Button/Button.jsx";
+import Button from "../../../components/ui/Button/Button.jsx";
 import { 
   useRoomImages, 
   useUploadRoomImage, 
   useDeleteRoomImage, 
-} from "../../hooks/useRooms.js";
+} from "../hooks/useRooms.js";
 
 function RoomImages({ roomId }) {
   const { data: imagesData, isLoading: isLoadingImages } = useRoomImages(roomId);

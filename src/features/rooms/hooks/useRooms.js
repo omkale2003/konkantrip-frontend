@@ -21,9 +21,16 @@ import {
   uploadRoomImage,
   updateRoomImage,
   deleteRoomImage,
+  getAmenitiesLookup
 } from "../api/rooms.api.js";
 
 // -- Lookups --
+export const useAmenitiesLookup = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.LOOKUPS.AMENITIES,
+    queryFn: getAmenitiesLookup,
+  });
+};
 export const useRoomLookups = (lookupType) => {
   return useQuery({
     queryKey: QUERY_KEYS.LOOKUPS.ROOMS.concat([lookupType]),
@@ -37,7 +44,7 @@ export const useRooms = (params = {}) => {
   return useQuery({
     queryKey: QUERY_KEYS.ROOMS.LIST(params),
     queryFn: () => getRooms(params),
-    enabled: Boolean(params.property_id), // Wait until we know the property
+    enabled: params.enabled !== false,
   });
 };
 

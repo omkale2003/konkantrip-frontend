@@ -2,28 +2,29 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, IndianRupee } from "lucide-react";
 
-import Button from "../../../../components/ui/Button/Button.jsx";
-import { useRoomLookups } from "../../hooks/useRooms.js";
+import Button from "../../../components/ui/Button/Button.jsx";
+import { useRoomLookups } from "../hooks/useRooms.js";
 
 const roomSchema = z.object({
   room_name: z.string().min(1, "Room name is required").max(100),
   room_code: z.string().min(1, "Room code is required").max(20),
+  price: z.coerce.number().min(0, "Price must be at least 0").optional().default(0),
   room_type_id: z.string().min(1, "Room type is required"),
   room_status_id: z.string().min(1, "Room status is required"),
-  base_guests: z.coerce.number().min(1, "At least 1 base guest").default(2),
+  base_occupancy: z.coerce.number().min(1, "At least 1 base guest").default(2),
   maximum_guests: z.coerce.number().min(1, "At least 1 max guest").default(2),
   is_bookable: z.boolean().default(true),
   is_published: z.boolean().default(true),
-}).refine(data => data.maximum_guests >= data.base_guests, {
+}).refine(data => data.maximum_guests >= data.base_occupancy, {
   message: "Max guests must be >= base guests",
   path: ["maximum_guests"]
 });
 
 function RoomForm({ defaultValues, onSubmit, isSubmitting, onCancel }) {
-  const { data: roomTypesData } = useRoomLookups("room-types");
-  const { data: roomStatusData } = useRoomLookups("room-status");
+  const { data: roomTypesData } = useRoomLookups("ROOM_TYPES");
+  const { data: roomStatusData } = useRoomLookups("ROOM_STATUS");
 
   const roomTypes = roomTypesData?.data || [];
   const roomStatuses = roomStatusData?.data || [];
@@ -38,9 +39,10 @@ function RoomForm({ defaultValues, onSubmit, isSubmitting, onCancel }) {
     defaultValues: defaultValues || {
       room_name: "",
       room_code: "",
+      price: 0,
       room_type_id: "",
       room_status_id: "",
-      base_guests: 2,
+      base_occupancy: 2,
       maximum_guests: 2,
       is_bookable: true,
       is_published: true,
@@ -49,7 +51,10 @@ function RoomForm({ defaultValues, onSubmit, isSubmitting, onCancel }) {
 
   useEffect(() => {
     if (defaultValues) {
-      reset(defaultValues);
+      reset({
+        ...defaultValues,
+        price: defaultValues.price ?? defaultValues.base_price ?? 0,
+      });
     }
   }, [defaultValues, reset]);
 
@@ -79,6 +84,26 @@ function RoomForm({ defaultValues, onSubmit, isSubmitting, onCancel }) {
           />
           {errors.room_code && (
             <p className="text-xs text-red-600">{errors.room_code.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-slate-700">Room Price (₹ / Night)</label>
+          <div className="relative">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+              <IndianRupee className="h-4 w-4" />
+            </span>
+            <input
+              {...register("price")}
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="e.g. 2500"
+              className="block w-full rounded-md border-slate-300 py-2 pl-9 pr-3 focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+            />
+          </div>
+          {errors.price && (
+            <p className="text-xs text-red-600">{errors.price.message}</p>
           )}
         </div>
 
@@ -121,13 +146,13 @@ function RoomForm({ defaultValues, onSubmit, isSubmitting, onCancel }) {
         <div className="space-y-1">
           <label className="text-sm font-medium text-slate-700">Base Guests</label>
           <input
-            {...register("base_guests")}
+            {...register("base_occupancy")}
             type="number"
             min="1"
             className="block w-full rounded-md border-slate-300 py-2 px-3 focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
           />
-          {errors.base_guests && (
-            <p className="text-xs text-red-600">{errors.base_guests.message}</p>
+          {errors.base_occupancy && (
+            <p className="text-xs text-red-600">{errors.base_occupancy.message}</p>
           )}
         </div>
 
