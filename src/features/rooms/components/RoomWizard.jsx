@@ -42,6 +42,7 @@ function RoomWizard({ initialRoomId, initialPropertyId, isEditMode = false }) {
         // Create new room in backend DB
         const response = await createRoom({
           ...formData,
+          base_price: formData.price ?? formData.base_price ?? 0,
           property_id: formData.property_id || initialPropertyId,
         });
         const newRoomId = response.data.room_id;
@@ -54,7 +55,10 @@ function RoomWizard({ initialRoomId, initialPropertyId, isEditMode = false }) {
         // Update existing room in backend DB
         await updateRoom({
           roomId,
-          data: formData,
+          data: {
+            ...formData,
+            base_price: formData.price ?? formData.base_price ?? 0,
+          },
         });
         setMaxCompletedStep((prev) => Math.max(prev, 1));
         setActiveStep(2);

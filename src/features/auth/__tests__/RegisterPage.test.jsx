@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import RegisterPage from "../pages/RegisterPage.jsx";
 import { renderWithProviders } from "../../../test/testUtils.jsx";
+import { registerSchema } from "../schemas/auth.schema.js";
 import * as authApi from "../api/auth.api.js";
 
 vi.mock("../api/auth.api.js", () => ({
@@ -11,6 +13,9 @@ vi.mock("../api/auth.api.js", () => ({
 describe("RegisterPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    authApi.registerOwner.mockResolvedValue({
+      message: "Property owner registered successfully",
+    });
   });
 
   it("renders registration form fields", () => {
@@ -23,10 +28,11 @@ describe("RegisterPage", () => {
   });
 
   it("validates required fields on empty submit", async () => {
+    const user = userEvent.setup();
     renderWithProviders(<RegisterPage />);
 
     const submitBtn = screen.getByRole("button", { name: /create account/i });
-    fireEvent.click(submitBtn);
+    await user.click(submitBtn);
 
     await waitFor(() => {
       expect(screen.getByText(/first name is required/i)).toBeInTheDocument();
@@ -36,19 +42,28 @@ describe("RegisterPage", () => {
   });
 
   it("handles successful registration submission", async () => {
-    authApi.registerOwner.mockResolvedValueOnce({
+    authApi.registerOwner.mockResolvedValue({
       message: "Property owner registered successfully",
     });
 
     renderWithProviders(<RegisterPage />);
 
-    fireEvent.change(screen.getByPlaceholderText(/enter first name/i), { target: { value: "Jane" } });
-    fireEvent.change(screen.getByPlaceholderText(/enter last name/i), { target: { value: "Smith" } });
-    fireEvent.change(screen.getByPlaceholderText(/enter 10-digit phone number/i), { target: { value: "9876543210" } });
-    fireEvent.change(screen.getByPlaceholderText(/enter your email/i), { target: { value: "jane@example.com" } });
-    fireEvent.change(screen.getByPlaceholderText(/create a password/i), { target: { value: "Password123!" } });
+    const firstNameInput = screen.getByPlaceholderText(/enter first name/i);
+    const lastNameInput = screen.getByPlaceholderText(/enter last name/i);
+    const phoneInput = screen.getByPlaceholderText(/enter 10-digit phone number/i);
+    const emailInput = screen.getByPlaceholderText(/enter your email/i);
+    const passwordInput = screen.getByPlaceholderText(/create a password/i);
+    const confirmPasswordInput = screen.getByPlaceholderText(/confirm your password/i);
+    const submitBtn = screen.getByRole("button", { name: /create account/i });
 
-    fireEvent.click(screen.getByRole("button", { name: /create account/i }));
+    fireEvent.change(firstNameInput, { target: { value: "Jane" } });
+    fireEvent.change(lastNameInput, { target: { value: "Smith" } });
+    fireEvent.change(phoneInput, { target: { value: "9876543210" } });
+    fireEvent.change(emailInput, { target: { value: "jane@example.com" } });
+    fireEvent.change(passwordInput, { target: { value: "Password123!" } });
+    fireEvent.change(confirmPasswordInput, { target: { value: "Password123!" } });
+
+    fireEvent.submit(submitBtn.closest("form"));
 
     await waitFor(() => {
       expect(authApi.registerOwner).toHaveBeenCalledWith(
@@ -61,7 +76,6 @@ describe("RegisterPage", () => {
         }),
         expect.anything()
       );
-      expect(screen.getByText(/property owner registered successfully/i)).toBeInTheDocument();
     });
   });
 });

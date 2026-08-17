@@ -268,11 +268,12 @@ function AmenitiesStep({
                 return (
                   <div
                     key={amenity.amenity_id}
+                    onClick={() => toggleAmenity(amenity.amenity_id)}
                     className={[
-                      "flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border p-4 transition-all duration-150",
+                      "flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border p-4 transition-all duration-150 cursor-pointer select-none",
                       isSelected
                         ? "border-emerald-200 bg-emerald-50/30"
-                        : "border-slate-200 bg-white",
+                        : "border-slate-200 bg-white hover:border-slate-300",
                     ].join(" ")}
                   >
                     {/* Left: Checkbox & Info */}
@@ -314,7 +315,7 @@ function AmenitiesStep({
                     </div>
 
                     {/* Right: Remarks Input */}
-                    <div className="w-full sm:w-64 shrink-0">
+                    <div className="w-full sm:w-64 shrink-0" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="text"
                         value={remarks[amenity.amenity_id] || ""}

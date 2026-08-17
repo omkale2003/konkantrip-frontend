@@ -333,12 +333,18 @@ function AddPropertyPage() {
     setReviewServerError("");
 
     try {
-      // Touch/update property via existing backend API endpoint PUT /api/v1/properties/:id
+      // Submit property for verification via PUT /api/v1/properties/:id
+      const payload = {
+        property_status: "Pending",
+      };
+
+      if (basicDetails?.property_name) {
+        payload.property_name = basicDetails.property_name;
+      }
+
       await updatePropertyMutation.mutateAsync({
         propertyId,
-        propertyData: {
-          property_name: propertyData?.property_name,
-        },
+        propertyData: payload,
       });
 
       // Clear property draft cache on successful submission
@@ -531,7 +537,7 @@ function AddPropertyPage() {
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
           <ReviewStep
             propertyId={propertyId}
-            basicDetails={propertyData || {}}
+            basicDetails={basicDetails || {}}
             onNavigateToStep={handleEditFromReview}
             onSubmitProperty={handleFinalPropertySubmit}
             onBack={() => setCurrentStep(7)}

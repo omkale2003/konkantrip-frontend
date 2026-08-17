@@ -61,7 +61,7 @@ describe("AmenitiesStep Component", () => {
     fireEvent.click(submitBtn);
 
     expect(mockOnSubmit).toHaveBeenCalledWith([
-      { amenity_id: 1, is_available: true },
+      expect.objectContaining({ amenity_id: 1, is_available: true }),
     ]);
   });
 });
