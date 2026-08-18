@@ -268,20 +268,19 @@ function AmenitiesStep({
                 return (
                   <div
                     key={amenity.amenity_id}
+                    onClick={() => toggleAmenity(amenity.amenity_id)}
                     className={[
-                      "flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border p-4 transition-all duration-150",
+                      "flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border p-4 transition-all duration-150 cursor-pointer select-none",
                       isSelected
-                        ? "border-emerald-200 bg-emerald-50/30"
-                        : "border-slate-200 bg-white",
+                        ? "border-emerald-200 bg-emerald-50/30 shadow-xs"
+                        : "border-slate-200 bg-white hover:border-emerald-200 hover:bg-slate-50/50",
                     ].join(" ")}
                   >
                     {/* Left: Checkbox & Info */}
                     <div className="flex flex-1 items-center gap-4 min-w-0">
-                      <button
-                        type="button"
-                        onClick={() => toggleAmenity(amenity.amenity_id)}
+                      <div
                         className={[
-                          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-all",
+                          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-all pointer-events-none",
                           isSelected
                             ? "border-emerald-700 bg-emerald-700 text-white"
                             : "border-slate-300 bg-white hover:border-slate-400",
@@ -291,7 +290,7 @@ function AmenitiesStep({
                         {isSelected && (
                           <Check className="h-4 w-4 stroke-[3]" />
                         )}
-                      </button>
+                      </div>
 
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hidden sm:flex">
                         <Icon className="h-5 w-5" />
@@ -314,7 +313,10 @@ function AmenitiesStep({
                     </div>
 
                     {/* Right: Remarks Input */}
-                    <div className="w-full sm:w-64 shrink-0">
+                    <div
+                      className="w-full sm:w-64 shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <input
                         type="text"
                         value={remarks[amenity.amenity_id] || ""}

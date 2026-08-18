@@ -447,6 +447,7 @@ function AddPropertyPage() {
             </div>
           ) : (
             <ContactStep
+              propertyId={activePropertyId}
               initialValues={primaryContact || {}}
               onSubmit={handleContactSubmit}
               onBack={() => handleBackFromStep(2)}

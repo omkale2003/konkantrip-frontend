@@ -15,7 +15,7 @@ describe("propertyRooms.api", () => {
     
     const result = await getPropertyRooms(123);
     
-    expect(apiClient.get).toHaveBeenCalledWith("/properties/123/rooms");
+    expect(apiClient.get).toHaveBeenCalledWith("/rooms?property_id=123");
     expect(result).toEqual(mockData);
   });
 });

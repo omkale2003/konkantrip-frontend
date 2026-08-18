@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createPropertyContact,
+  deletePropertyContact,
   getContactTypesLookup,
   getPropertyContacts,
   updatePropertyContact,
@@ -40,6 +41,28 @@ export const useSavePropertyContact = (propertyIdParam) => {
         return updatePropertyContact(propertyId, contactId, payload);
       }
       return createPropertyContact(propertyId, payload);
+    },
+
+    onSuccess: (_, variables) => {
+      const targetId = variables.propertyId || propertyIdParam;
+      queryClient.invalidateQueries({
+        queryKey: ["propertyContacts", targetId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["properties", targetId],
+      });
+    },
+  });
+};
+
+export const useDeletePropertyContact = (propertyIdParam) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (variables) => {
+      const propertyId = variables.propertyId || propertyIdParam;
+      const contactId = variables.contactId || variables;
+      return deletePropertyContact(propertyId, contactId);
     },
 
     onSuccess: (_, variables) => {

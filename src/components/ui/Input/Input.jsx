@@ -1,4 +1,6 @@
-function Input({
+import { forwardRef } from "react";
+
+const Input = forwardRef(function Input({
   label,
   error,
   id,
@@ -6,7 +8,7 @@ function Input({
   className = "",
   rightElement,
   ...props
-}) {
+}, ref) {
   const inputClasses = [
     "min-h-11 w-full rounded-lg border bg-white px-3 text-slate-900 outline-none transition",
     "placeholder:text-slate-400",
@@ -43,6 +45,7 @@ function Input({
       <div className="relative flex items-center">
         <input
           id={id}
+          ref={ref}
           className={inputClasses}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : undefined}
@@ -66,6 +69,6 @@ function Input({
       )}
     </div>
   );
-}
+});
 
 export default Input;

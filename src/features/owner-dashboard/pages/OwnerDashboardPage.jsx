@@ -200,7 +200,15 @@ function OwnerDashboardPage() {
                 </div>
 
                 {card.trend && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-600">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                      card.trend.startsWith("+")
+                        ? "bg-emerald-100 text-emerald-700"
+                        : card.trend.startsWith("-")
+                        ? "bg-red-100 text-red-700"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
                     {card.trend}
                   </span>
                 )}

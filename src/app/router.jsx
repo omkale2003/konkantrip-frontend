@@ -14,11 +14,17 @@ import MyPropertiesPage from "../features/properties/pages/MyPropertiesPage.jsx"
 import AddPropertyPage from "../features/properties/pages/AddPropertyPage.jsx";
 import ManagePropertyPage from "../features/properties/pages/ManagePropertyPage.jsx";
 
-import RoomsPage from "../features/owner/pages/RoomsPage.jsx";
-import AddRoomPage from "../features/owner/pages/AddRoomPage.jsx";
-import EditRoomPage from "../features/owner/pages/EditRoomPage.jsx";
+import RoomsPage from "../features/rooms/pages/RoomsPage.jsx";
+import AddRoomPage from "../features/rooms/pages/AddRoomPage.jsx";
+import EditRoomPage from "../features/rooms/pages/EditRoomPage.jsx";
+import EmployeesPage from "../features/employees/pages/EmployeesPage.jsx";
 import BookingsPage from "../features/owner/pages/BookingsPage.jsx";
 import AvailabilityPage from "../features/owner/pages/AvailabilityPage.jsx";
+import InventoryCalendarPage from "../features/inventory/pages/InventoryCalendarPage.jsx";
+import InventorySetupPage from "../features/inventory/pages/InventorySetupPage.jsx";
+import RoomBlocksPage from "../features/inventory/pages/RoomBlocksPage.jsx";
+import StopSellPage from "../features/inventory/pages/StopSellPage.jsx";
+import InventoryHistoryPage from "../features/inventory/pages/InventoryHistoryPage.jsx";
 import PricingPage from "../features/owner/pages/PricingPage.jsx";
 import ReviewsPage from "../features/owner/pages/ReviewsPage.jsx";
 import PaymentsPage from "../features/owner/pages/PaymentsPage.jsx";
@@ -35,6 +41,11 @@ const router = createBrowserRouter([
 
   {
     path: ROUTES.LOGIN,
+    element: <LoginPage />,
+  },
+
+  {
+    path: "/employee/login",
     element: <LoginPage />,
   },
 
@@ -85,13 +96,43 @@ const router = createBrowserRouter([
           },
 
           {
+            path: ROUTES.OWNER_EMPLOYEES,
+            element: <EmployeesPage />,
+          },
+
+          {
             path: ROUTES.OWNER_BOOKINGS,
             element: <BookingsPage />,
           },
 
           {
             path: ROUTES.OWNER_AVAILABILITY,
-            element: <AvailabilityPage />,
+            element: <InventoryCalendarPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY,
+            element: <InventoryCalendarPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY_SETUP,
+            element: <InventorySetupPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY_BLOCKS,
+            element: <RoomBlocksPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY_STOP_SELL,
+            element: <StopSellPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY_HISTORY,
+            element: <InventoryHistoryPage />,
           },
 
           {
