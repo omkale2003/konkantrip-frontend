@@ -20,6 +20,11 @@ import EditRoomPage from "../features/rooms/pages/EditRoomPage.jsx";
 import EmployeesPage from "../features/employees/pages/EmployeesPage.jsx";
 import BookingsPage from "../features/owner/pages/BookingsPage.jsx";
 import AvailabilityPage from "../features/owner/pages/AvailabilityPage.jsx";
+import InventoryCalendarPage from "../features/inventory/pages/InventoryCalendarPage.jsx";
+import InventorySetupPage from "../features/inventory/pages/InventorySetupPage.jsx";
+import RoomBlocksPage from "../features/inventory/pages/RoomBlocksPage.jsx";
+import StopSellPage from "../features/inventory/pages/StopSellPage.jsx";
+import InventoryHistoryPage from "../features/inventory/pages/InventoryHistoryPage.jsx";
 import PricingPage from "../features/owner/pages/PricingPage.jsx";
 import ReviewsPage from "../features/owner/pages/ReviewsPage.jsx";
 import PaymentsPage from "../features/owner/pages/PaymentsPage.jsx";
@@ -102,7 +107,32 @@ const router = createBrowserRouter([
 
           {
             path: ROUTES.OWNER_AVAILABILITY,
-            element: <AvailabilityPage />,
+            element: <InventoryCalendarPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY,
+            element: <InventoryCalendarPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY_SETUP,
+            element: <InventorySetupPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY_BLOCKS,
+            element: <RoomBlocksPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY_STOP_SELL,
+            element: <StopSellPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_INVENTORY_HISTORY,
+            element: <InventoryHistoryPage />,
           },
 
           {

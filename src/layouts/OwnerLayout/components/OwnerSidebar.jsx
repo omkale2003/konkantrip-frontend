@@ -1,5 +1,5 @@
 import {
-  CalendarCheck,
+  Boxes,
   CalendarDays,
   ClipboardList,
   CreditCard,
@@ -47,9 +47,9 @@ const allNavigationItems = [
     permission: "bookings:read",
   },
   {
-    label: "Availability",
-    path: "/owner/availability",
-    icon: CalendarCheck,
+    label: "Inventory",
+    path: "/owner/inventory",
+    icon: Boxes,
     permission: "inventory:read",
   },
   {

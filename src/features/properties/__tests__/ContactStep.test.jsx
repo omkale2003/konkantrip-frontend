@@ -8,6 +8,7 @@ vi.mock("../hooks/usePropertyContacts.js", () => ({
   useContactTypes: vi.fn(),
   usePropertyContacts: vi.fn(),
   useSavePropertyContact: vi.fn(),
+  useDeletePropertyContact: vi.fn(),
 }));
 
 describe("ContactStep Component", () => {
@@ -23,6 +24,18 @@ describe("ContactStep Component", () => {
           { contact_type_id: 2, contact_type_name: "Front Desk" },
         ],
       },
+    });
+    contactHooks.usePropertyContacts.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+    });
+    contactHooks.useSavePropertyContact.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+    contactHooks.useDeletePropertyContact.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
     });
   });
 

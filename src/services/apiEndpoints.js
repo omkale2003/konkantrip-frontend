@@ -54,12 +54,17 @@ export const API_ENDPOINTS = {
 
   INVENTORY: {
     LIST: "/inventory/rooms",
+    ROOM_DETAIL: (id) => `/inventory/rooms/${id}`,
     PROPERTY_INVENTORY: (propertyId) =>
       `/inventory/rooms?property_id=${propertyId}`,
     CALENDAR: "/inventory/calendar",
     TRANSACTIONS: "/inventory/transactions",
     BLOCKS: "/inventory/blocks",
+    BLOCK_RELEASE: (blockId) => `/inventory/blocks/release/${blockId}`,
+    BLOCK_CANCEL: (blockId) => `/inventory/blocks/cancel/${blockId}`,
     STOP_SELL: "/inventory/stop-sell",
+    STOP_SELL_RELEASE: (id) => `/inventory/stop-sell/release/${id}`,
+    STOP_SELL_CANCEL: (id) => `/inventory/stop-sell/cancel/${id}`,
   },
 
   LOOKUPS: {
