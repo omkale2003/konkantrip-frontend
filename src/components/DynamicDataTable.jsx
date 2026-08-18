@@ -88,16 +88,16 @@ const DynamicDataTable = ({ tableName, columns, title, primaryKeyField }) => {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             {/* Header */}
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
                 <div>
-                    <h2 className="text-xl font-bold text-gray-800">{title}</h2>
-                    <p className="text-sm text-gray-500 mt-1">Manage configuration for {tableName}</p>
+                    <h2 className="text-xl font-bold text-slate-800">{title}</h2>
+                    <p className="text-sm text-slate-500 mt-1">Manage configuration for {tableName}</p>
                 </div>
                 <button
                     onClick={openCreateModal}
-                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-sm"
+                    className="flex items-center space-x-2 bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-sm"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                     <span>Add New</span>
@@ -115,32 +115,32 @@ const DynamicDataTable = ({ tableName, columns, title, primaryKeyField }) => {
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
+                        <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                             {columns.map(col => (
                                 <th key={col.key} className="px-6 py-4 font-semibold">{col.label}</th>
                             ))}
                             <th className="px-6 py-4 font-semibold text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 text-gray-700 text-sm">
+                    <tbody className="divide-y divide-slate-200 text-slate-700 text-sm">
                         {loading ? (
-                            <tr><td colSpan={columns.length + 1} className="px-6 py-8 text-center text-gray-400">Loading data...</td></tr>
+                            <tr><td colSpan={columns.length + 1} className="px-6 py-8 text-center text-slate-400">Loading data...</td></tr>
                         ) : data.length === 0 ? (
-                            <tr><td colSpan={columns.length + 1} className="px-6 py-8 text-center text-gray-400">No records found.</td></tr>
+                            <tr><td colSpan={columns.length + 1} className="px-6 py-8 text-center text-slate-400">No records found.</td></tr>
                         ) : (
                             data.map((row) => (
-                                <tr key={row[primaryKeyField]} className="hover:bg-blue-50/30 transition-colors">
+                                <tr key={row[primaryKeyField]} className="hover:slate-50/80 transition-colors">
                                     {columns.map(col => (
                                         <td key={col.key} className="px-6 py-4">
                                             {typeof row[col.key] === 'boolean' || col.type === 'boolean' ? (
-                                                <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${row[col.key] ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${row[col.key] ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
                                                     {row[col.key] ? 'Active' : 'Inactive'}
                                                 </span>
                                             ) : row[col.key]}
                                         </td>
                                     ))}
                                     <td className="px-6 py-4 text-right space-x-3">
-                                        <button onClick={() => openEditModal(row)} className="text-blue-600 hover:text-blue-800 font-medium transition-colors">Edit</button>
+                                        <button onClick={() => openEditModal(row)} className="text-[var(--color-konkan-700)] hover:text-[var(--color-konkan-800)] font-medium transition-colors">Edit</button>
                                         <button onClick={() => handleDelete(row[primaryKeyField])} className="text-red-600 hover:text-red-800 font-medium transition-colors">Delete</button>
                                     </td>
                                 </tr>
@@ -152,20 +152,20 @@ const DynamicDataTable = ({ tableName, columns, title, primaryKeyField }) => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
-                    <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+                <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50/50">
+                    <span className="text-sm text-slate-600">Page {page} of {totalPages}</span>
                     <div className="space-x-2">
                         <button
                             disabled={page === 1}
                             onClick={() => setPage(page - 1)}
-                            className="px-3 py-1.5 border border-gray-300 rounded text-sm text-gray-700 disabled:opacity-50 hover:bg-gray-100 transition-colors"
+                            className="px-3 py-1.5 border border-slate-300 rounded text-sm text-slate-700 disabled:opacity-50 hover:bg-slate-100 transition-colors"
                         >
                             Previous
                         </button>
                         <button
                             disabled={page === totalPages}
                             onClick={() => setPage(page + 1)}
-                            className="px-3 py-1.5 border border-gray-300 rounded text-sm text-gray-700 disabled:opacity-50 hover:bg-gray-100 transition-colors"
+                            className="px-3 py-1.5 border border-slate-300 rounded text-sm text-slate-700 disabled:opacity-50 hover:bg-slate-100 transition-colors"
                         >
                             Next
                         </button>

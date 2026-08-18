@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 
 import PropertyFullDetailsView from '../components/PropertyFullDetailsView';
+import Loader from '../components/Loader';
 
 export default function PropertiesList() {
     const { ownerId } = useParams();
@@ -30,12 +31,12 @@ export default function PropertiesList() {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-slate-500 animate-pulse">Loading data...</div>;
+    if (loading) return <Loader message="Fetching owner portfolio..." />;
 
     return (
         <div className="space-y-6">
             <div className="mb-2">
-                <Link to="/admin/dashboard/owners" className="text-[13px] font-semibold text-[#226a5b] hover:underline flex items-center gap-1 w-max">
+                <Link to="/admin/dashboard/owners" className="text-[13px] font-semibold text-[var(--color-konkan-700)] hover:underline flex items-center gap-1 w-max">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     Back to Owners
                 </Link>
@@ -43,7 +44,7 @@ export default function PropertiesList() {
 
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <h2 className="text-[#226a5b] text-[13px] font-semibold mb-1">Property Inventory</h2>
+                    <h2 className="text-[var(--color-konkan-700)] text-[13px] font-semibold mb-1">Property Inventory</h2>
                     <h1 className="text-3xl font-bold text-slate-800">Owner #{ownerId} Portfolio</h1>
                     <p className="text-sm text-slate-500 mt-1.5">View properties mapped to this host and manage details.</p>
                 </div>
@@ -105,7 +106,7 @@ export default function PropertiesList() {
                 {/* Right Column: Host Profile */}
                 <div className="w-full lg:w-[320px] shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm sticky top-6">
                     <div className="p-6 border-b border-slate-100 flex flex-col items-center">
-                        <div className="w-20 h-20 bg-[#f0f9f6] text-[#226a5b] rounded-full flex items-center justify-center text-3xl font-bold mb-4 shadow-inner">
+                        <div className="w-20 h-20 bg-konkan-50 text-[var(--color-konkan-700)] rounded-full flex items-center justify-center text-3xl font-bold mb-4 shadow-inner">
                             {owner?.first_name?.charAt(0)}{owner?.last_name?.charAt(0)}
                         </div>
                         <h3 className="text-lg font-bold text-slate-800">{owner?.first_name} {owner?.last_name}</h3>

@@ -67,27 +67,27 @@ const MasterDataConfig = () => {
     const activeConfig = TableConfigs[activeTab];
 
     return (
-        <div className="p-6 md:p-8 bg-gray-50 min-h-screen">
+        <div className="p-6 md:p-8 bg-slate-50 min-h-screen">
             <div className="max-w-7xl mx-auto space-y-6">
 
                 {/* Header */}
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Master Data Configuration</h1>
-                    <p className="text-gray-500 mt-2">Manage all system lookups, options, and global variables.</p>
+                    <h1 className="text-3xl font-bold text-slate-800">Master Data Configuration</h1>
+                    <p className="text-slate-500 mt-2">Manage all system lookups, options, and global variables.</p>
                 </div>
 
                 {/* Sub-layout: Sidebar + Main Content */}
                 <div className="flex flex-col lg:flex-row gap-6">
                     {/* Navigation Sidebar */}
                     <div className="w-full lg:w-64 flex-shrink-0">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-2 space-y-1 sticky top-6">
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 space-y-1 sticky top-6">
                             {Object.keys(TableConfigs).map((key) => (
                                 <button
                                     key={key}
                                     onClick={() => setActiveTab(key)}
                                     className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all ${activeTab === key
-                                            ? 'bg-blue-50 text-blue-700 shadow-sm'
-                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                            ? 'bg-[var(--color-konkan-50)] text-[var(--color-konkan-700)] shadow-sm'
+                                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
                                         }`}
                                 >
                                     {TableConfigs[key].title}
@@ -106,7 +106,7 @@ const MasterDataConfig = () => {
                                 primaryKeyField={activeConfig.primaryKeyField}
                             />
                         ) : (
-                            <div className="text-gray-400 p-10 text-center bg-white rounded-xl border border-gray-100">
+                            <div className="text-slate-400 p-10 text-center bg-white rounded-xl border border-slate-200">
                                 Select a configuration category from the sidebar.
                             </div>
                         )}

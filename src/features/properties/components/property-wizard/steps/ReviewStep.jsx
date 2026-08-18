@@ -85,6 +85,9 @@ function ReviewStep({
   onBack,
   isSubmitting = false,
   serverError = "",
+  isAdminView = false,
+  onApprove,
+  onReject
 }) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSubmittedSuccess, setIsSubmittedSuccess] = useState(false);
@@ -482,14 +485,35 @@ function ReviewStep({
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowConfirmModal(true)}
-          disabled={isSubmitting}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
-        >
-          Submit Property
-        </button>
+        {!isAdminView ? (
+          <button
+            type="button"
+            onClick={() => setShowConfirmModal(true)}
+            disabled={isSubmitting}
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+          >
+            Submit Property
+          </button>
+        ) : (
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onReject}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 rounded-lg bg-white border border-red-200 text-red-600 px-6 py-2.5 text-sm font-semibold transition hover:bg-red-50 disabled:opacity-60"
+            >
+              Reject Listing
+            </button>
+            <button
+              type="button"
+              onClick={onApprove}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:opacity-60"
+            >
+              Approve Listing
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal */}

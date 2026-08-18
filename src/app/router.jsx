@@ -2,6 +2,17 @@ import { createBrowserRouter } from "react-router-dom";
 
 import App from "./App.jsx";
 
+// Admin Dashboard Imports
+import Login from "../views/Login.jsx";
+import DashboardLayout from "../views/DashboardLayout.jsx";
+import AuthWrapper from "../components/AuthWrapper.jsx";
+import OwnersList from "../views/OwnersList.jsx";
+import PropertiesList from "../views/PropertiesList.jsx";
+import AllPropertiesList from "../views/AllPropertiesList.jsx";
+import PendingApprovals from "../views/PendingApprovals.jsx";
+import MasterDataConfig from "../views/MasterDataConfig.jsx";
+import GlobalAdminDashboard from "../views/GlobalAdminDashboard.jsx";
+
 import LoginPage from "../features/auth/pages/LoginPage.jsx";
 import RegisterPage from "../features/auth/pages/RegisterPage.jsx";
 
@@ -163,6 +174,29 @@ const router = createBrowserRouter([
       },
     ],
   },
+  // Admin Ecosystem
+  {
+    path: "/admin",
+    element: <AuthWrapper />,
+    children: [
+      {
+        path: "dashboard",
+        element: <DashboardLayout />,
+        children: [
+          { index: true, element: <GlobalAdminDashboard /> },
+          { path: "owners", element: <OwnersList /> },
+          { path: "owners/:ownerId/properties", element: <PropertiesList /> },
+          { path: "properties", element: <AllPropertiesList /> },
+          { path: "pending", element: <PendingApprovals /> },
+          { path: "master-data", element: <MasterDataConfig /> }
+        ]
+      }
+    ]
+  },
+  {
+    path: "/admin/login",
+    element: <Login />
+  }
 ]);
 
 export default router;

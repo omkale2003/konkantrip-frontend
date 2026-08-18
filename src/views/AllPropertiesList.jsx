@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
 import PropertyFullDetailsView from '../components/PropertyFullDetailsView';
+import Loader from '../components/Loader';
 
 export default function AllPropertiesList() {
     const [properties, setProperties] = useState([]);
@@ -27,7 +28,7 @@ export default function AllPropertiesList() {
         <div className="space-y-6 pb-12">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <h2 className="text-[#226a5b] text-[13px] font-semibold mb-1">Platform Inventory</h2>
+                    <h2 className="text-[var(--color-konkan-700)] text-[13px] font-semibold mb-1">Platform Inventory</h2>
                     <h1 className="text-3xl font-bold text-slate-800">All Properties</h1>
                     <p className="text-sm text-slate-500 mt-1.5">View and manage all properties listed across the entire platform.</p>
                 </div>
@@ -45,7 +46,7 @@ export default function AllPropertiesList() {
 
                 <div className="divide-y divide-slate-100 bg-slate-50/20">
                     {loading ? (
-                        <div className="p-12 text-center text-slate-500 text-sm bg-white animate-pulse">Running data fetch...</div>
+                        <div className="py-12"><Loader message="Synchronizing platform inventory..." /></div>
                     ) : properties.map((property) => {
                         const isExpanded = expandedPropertyId === property.property_id;
 

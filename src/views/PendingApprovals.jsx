@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
+import Loader from '../components/Loader';
 
-import PropertyFullDetailsView from '../components/PropertyFullDetailsView';
+import ReviewStep from '../features/properties/components/property-wizard/steps/ReviewStep.jsx';
 
 export default function PendingApprovals() {
     const [properties, setProperties] = useState([]);
@@ -35,13 +36,13 @@ export default function PendingApprovals() {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-slate-500 animate-pulse">Building Queue...</div>;
+    if (loading) return <Loader message="Compiling approval queue..." />;
 
     return (
         <div className="space-y-6 pb-12">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                 <div>
-                    <h2 className="text-[#226a5b] text-[13px] font-semibold mb-1">Approval Queue</h2>
+                    <h2 className="text-[var(--color-konkan-700)] text-[13px] font-semibold mb-1">Approval Queue</h2>
                     <h1 className="text-3xl font-bold text-slate-800">Pending Properties</h1>
                     <p className="text-sm text-slate-500 mt-1.5">Review property forms thoroughly against platform guidelines.</p>
                 </div>
@@ -83,18 +84,22 @@ export default function PendingApprovals() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-4 text-[#226a5b] font-medium text-sm">
+                                    <div className="flex items-center gap-4 text-[var(--color-konkan-700)] font-medium text-sm">
                                         {isExpanded ? 'Close Form' : 'Deep Integrity Scan'}
                                         <svg className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                                     </div>
                                 </div>
 
                                 {isExpanded && (
-                                    <PropertyFullDetailsView
-                                        propertyId={property.property_id}
-                                        onAction={handleApproval}
-                                        hideActions={false}
-                                    />
+                                    <div className="p-6 bg-white border-t border-slate-100 mt-2 rounded-b-xl">
+                                        <ReviewStep
+                                            propertyId={property.property_id}
+                                            basicDetails={property}
+                                            isAdminView={true}
+                                            onApprove={() => handleApproval(property.property_id, "Approved")}
+                                            onReject={() => handleApproval(property.property_id, "Rejected")}
+                                        />
+                                    </div>
                                 )}
                             </div>
                         );

@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
 import EditableSection from './EditableSection';
+import Loader from './Loader';
 
 const PropertyFullDetailsView = ({ propertyId, onAction, hideActions }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('Overview');
+    const [isTabLoading, setIsTabLoading] = useState(false);
 
     const fetchData = () => {
         setLoading(true);
-        api.get(`/admin/dashboard/properties/${propertyId}/fulldetails`)
+        api.get(`/admin/dashboard/properties/fulldetails/${propertyId}`)
             .then(res => setData(res.data.data))
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
@@ -19,7 +21,7 @@ const PropertyFullDetailsView = ({ propertyId, onAction, hideActions }) => {
         fetchData();
     }, [propertyId]);
 
-    if (loading) return <div className="p-8 text-center text-slate-500 animate-pulse bg-white border-t border-slate-100">Extracting entity tree ({propertyId})...</div>;
+    if (loading) return <Loader message={`Extracting entity tree (${propertyId})...`} />;
     if (!data) return <div className="p-8 text-center text-red-500">Failed to mount property records.</div>;
 
     const { property, location, rooms, policies, contacts, images, amenities, documents } = data;
@@ -44,13 +46,13 @@ const PropertyFullDetailsView = ({ propertyId, onAction, hideActions }) => {
                         key={tab.name}
                         onClick={() => setActiveTab(tab.name)}
                         className={`flex items-center gap-2 pb-4 px-2 text-[13px] font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${activeTab === tab.name
-                                ? 'text-[#226a5b] border-[#226a5b]'
-                                : 'text-slate-400 border-transparent hover:text-slate-600'
+                            ? 'text-[var(--color-konkan-700)] border-[var(--color-konkan-700)]'
+                            : 'text-slate-400 border-transparent hover:text-slate-600'
                             }`}
                     >
                         {tab.name}
                         {tab.count !== undefined && (
-                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === tab.name ? 'bg-[#226a5b] text-white' : 'bg-slate-200 text-slate-600'}`}>
+                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === tab.name ? 'bg-[var(--color-konkan-700)] text-white' : 'bg-slate-200 text-slate-600'}`}>
                                 {tab.count}
                             </span>
                         )}
@@ -110,7 +112,7 @@ const PropertyFullDetailsView = ({ propertyId, onAction, hideActions }) => {
                 {activeTab === 'Media' && (
                     <div className="animate-fadeIn space-y-8">
                         <div>
-                            <h4 className="font-bold text-[#226a5b] uppercase tracking-widest border-b border-slate-200 pb-2 mb-4">Images Metadata ({images?.length || 0})</h4>
+                            <h4 className="font-bold text-[var(--color-konkan-700)] uppercase tracking-widest border-b border-slate-200 pb-2 mb-4">Images Metadata ({images?.length || 0})</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {images?.map((img, idx) => (
                                     <EditableSection key={idx} data={img} tableName="property_images" primaryKeyField="img_id" onRefresh={fetchData} />
@@ -120,7 +122,7 @@ const PropertyFullDetailsView = ({ propertyId, onAction, hideActions }) => {
                         </div>
 
                         <div>
-                            <h4 className="font-bold text-[#226a5b] uppercase tracking-widest border-b border-slate-200 pb-2 mb-4">Documents Vault ({documents?.length || 0})</h4>
+                            <h4 className="font-bold text-[var(--color-konkan-700)] uppercase tracking-widest border-b border-slate-200 pb-2 mb-4">Documents Vault ({documents?.length || 0})</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {documents?.map((doc, idx) => (
                                     <EditableSection key={idx} data={doc} tableName="property_documents" primaryKeyField="doc_id" onRefresh={fetchData} />
@@ -136,7 +138,7 @@ const PropertyFullDetailsView = ({ propertyId, onAction, hideActions }) => {
             {!hideActions && (
                 <div className="p-6 border-t border-slate-200 bg-white flex justify-end gap-3 shrink-0">
                     <button onClick={() => onAction(property.property_id, 'Rejected')} className="px-6 py-2.5 border border-slate-300 text-red-600 hover:bg-red-50 text-[13px] font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors cursor-pointer">Fail / Reject Property</button>
-                    <button onClick={() => onAction(property.property_id, 'Approved')} className="px-6 py-2.5 bg-[#226a5b] hover:bg-[#1a5548] text-white text-[13px] font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors cursor-pointer">Verify & Approve Listing</button>
+                    <button onClick={() => onAction(property.property_id, 'Approved')} className="px-6 py-2.5 bg-[var(--color-konkan-700)] hover:bg-konkan-800 text-white text-[13px] font-bold uppercase tracking-wider rounded-lg shadow-sm transition-colors cursor-pointer">Verify & Approve Listing</button>
                 </div>
             )}
         </div>
