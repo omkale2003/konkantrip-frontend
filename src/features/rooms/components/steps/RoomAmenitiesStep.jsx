@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { Sparkles, Plus, Search, Edit2, Trash2, Loader2, X, Check } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useRoomAmenities,
@@ -9,15 +8,10 @@ import {
   useDeleteRoomAmenity,
   useAmenitiesLookup,
 } from "../../hooks/useRooms.js";
-
-const amenitySchema = z.object({
-  amenity_id: z.string().min(1, "Amenity selection is required"),
-  is_available: z.boolean().default(true),
-  is_complimentary: z.boolean().default(true),
-  additional_charge: z.coerce.number().min(0).default(0),
-  quantity: z.coerce.number().min(1).default(1),
-  remarks: z.string().optional(),
-});
+import {
+  roomAmenitySchema,
+  defaultRoomAmenityValues,
+} from "../../schemas/room.schema.js";
 
 function RoomAmenitiesStep({ roomId, onSubmitNext }) {
   const { data: roomAmenitiesData, isLoading: isLoadingRoomAmenities } = useRoomAmenities(roomId);
@@ -43,14 +37,9 @@ function RoomAmenitiesStep({ roomId, onSubmitNext }) {
     reset,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(amenitySchema),
+    resolver: zodResolver(roomAmenitySchema),
     defaultValues: {
-      amenity_id: "",
-      is_available: true,
-      is_complimentary: true,
-      additional_charge: 0,
-      quantity: 1,
-      remarks: "",
+      ...defaultRoomAmenityValues,
     },
   });
 

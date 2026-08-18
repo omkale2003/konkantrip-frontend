@@ -1,26 +1,14 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, IndianRupee } from "lucide-react";
 
 import Button from "../../../components/ui/Button/Button.jsx";
 import { useRoomLookups } from "../hooks/useRooms.js";
-
-const roomSchema = z.object({
-  room_name: z.string().min(1, "Room name is required").max(100),
-  room_code: z.string().min(1, "Room code is required").max(20),
-  price: z.coerce.number().min(0, "Price must be at least 0").optional().default(0),
-  room_type_id: z.string().min(1, "Room type is required"),
-  room_status_id: z.string().min(1, "Room status is required"),
-  base_occupancy: z.coerce.number().min(1, "At least 1 base guest").default(2),
-  maximum_guests: z.coerce.number().min(1, "At least 1 max guest").default(2),
-  is_bookable: z.boolean().default(true),
-  is_published: z.boolean().default(true),
-}).refine(data => data.maximum_guests >= data.base_occupancy, {
-  message: "Max guests must be >= base guests",
-  path: ["maximum_guests"]
-});
+import {
+  roomQuickFormSchema,
+  defaultRoomQuickFormValues,
+} from "../schemas/room.schema.js";
 
 function RoomForm({ defaultValues, onSubmit, isSubmitting, onCancel }) {
   const { data: roomTypesData } = useRoomLookups("ROOM_TYPES");
@@ -35,18 +23,8 @@ function RoomForm({ defaultValues, onSubmit, isSubmitting, onCancel }) {
     formState: { errors },
     reset,
   } = useForm({
-    resolver: zodResolver(roomSchema),
-    defaultValues: defaultValues || {
-      room_name: "",
-      room_code: "",
-      price: 0,
-      room_type_id: "",
-      room_status_id: "",
-      base_occupancy: 2,
-      maximum_guests: 2,
-      is_bookable: true,
-      is_published: true,
-    },
+    resolver: zodResolver(roomQuickFormSchema),
+    defaultValues: defaultValues || defaultRoomQuickFormValues,
   });
 
   useEffect(() => {

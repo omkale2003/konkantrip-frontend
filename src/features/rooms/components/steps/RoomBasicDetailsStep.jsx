@@ -1,25 +1,14 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Hotel, Tag, Eye, IndianRupee } from "lucide-react";
 import { useRoomLookups } from "../../hooks/useRooms.js";
 import { useProperties } from "../../../properties/hooks/useProperties.js";
 import storageService from "../../../../services/storage.service.js";
-
-const basicDetailsSchema = z.object({
-  property_id: z.string().min(1, "Property selection is required"),
-  room_name: z.string().min(1, "Room name is required").max(150),
-  room_code: z.string().min(1, "Room code is required").max(50),
-  price: z.coerce.number().min(0, "Price must be at least 0").optional().default(0),
-  room_type_id: z.string().min(1, "Room type is required"),
-  room_status_id: z.string().min(1, "Room status is required"),
-  room_view_id: z.string().optional(),
-  description: z.string().optional(),
-  sort_order: z.coerce.number().min(0).default(1),
-  is_bookable: z.boolean().default(true),
-  is_published: z.boolean().default(true),
-});
+import {
+  roomBasicDetailsSchema,
+  defaultRoomBasicDetailsValues,
+} from "../../schemas/room.schema.js";
 
 function RoomBasicDetailsStep({ defaultValues, onSubmit, isSubmitting, initialPropertyId }) {
   const owner = storageService.getOwner();
@@ -44,19 +33,10 @@ function RoomBasicDetailsStep({ defaultValues, onSubmit, isSubmitting, initialPr
     formState: { errors },
     reset,
   } = useForm({
-    resolver: zodResolver(basicDetailsSchema),
+    resolver: zodResolver(roomBasicDetailsSchema),
     defaultValues: {
+      ...defaultRoomBasicDetailsValues,
       property_id: initialPropertyId ? initialPropertyId.toString() : "",
-      room_name: "",
-      room_code: "",
-      price: 0,
-      room_type_id: "",
-      room_status_id: "",
-      room_view_id: "",
-      description: "",
-      sort_order: 1,
-      is_bookable: true,
-      is_published: true,
       ...defaultValues,
     },
   });

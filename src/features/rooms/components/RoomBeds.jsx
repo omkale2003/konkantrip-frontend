@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import Button from "../../../components/ui/Button/Button.jsx";
@@ -11,11 +10,7 @@ import {
   useDeleteRoomBed, 
   useRoomLookups 
 } from "../hooks/useRooms.js";
-
-const bedSchema = z.object({
-  bed_type_id: z.string().min(1, "Bed type is required"),
-  quantity: z.coerce.number().min(1, "Quantity must be at least 1").default(1),
-});
+import { roomBedSchema } from "../schemas/room.schema.js";
 
 function RoomBeds({ roomId }) {
   const { data: bedsData, isLoading: isLoadingBeds } = useRoomBeds(roomId);
@@ -31,7 +26,7 @@ function RoomBeds({ roomId }) {
   const bedTypes = bedTypesData?.data || [];
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
-    resolver: zodResolver(bedSchema),
+    resolver: zodResolver(roomBedSchema),
     defaultValues: {
       bed_type_id: "",
       quantity: 1,

@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { Wrench, Plus, Search, Edit2, Trash2, Loader2, X, ChevronDown, ChevronUp, ShowerHead, Tv, Wifi, AirVent, ShieldAlert } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   useRoomFacilities,
@@ -9,15 +8,10 @@ import {
   useDeleteRoomFacility,
   useRoomLookups,
 } from "../../hooks/useRooms.js";
-
-const facilitySchema = z.object({
-  room_facility_id: z.string().min(1, "Facility selection is required"),
-  facility_value: z.string().optional(),
-  is_available: z.boolean().default(true),
-  is_complimentary: z.boolean().default(true),
-  additional_charge: z.coerce.number().min(0).default(0),
-  remarks: z.string().optional(),
-});
+import {
+  roomFacilitySchema,
+  defaultRoomFacilityValues,
+} from "../../schemas/room.schema.js";
 
 function RoomFacilitiesStep({ roomId, onSubmitNext }) {
   const { data: facilitiesData, isLoading: isLoadingRoomFacilities } = useRoomFacilities(roomId);
@@ -46,14 +40,9 @@ function RoomFacilitiesStep({ roomId, onSubmitNext }) {
     reset,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(facilitySchema),
+    resolver: zodResolver(roomFacilitySchema),
     defaultValues: {
-      room_facility_id: "",
-      facility_value: "",
-      is_available: true,
-      is_complimentary: true,
-      additional_charge: 0,
-      remarks: "",
+      ...defaultRoomFacilityValues,
     },
   });
 

@@ -1,25 +1,11 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Users, User, Baby, BedDouble, Building, ListOrdered } from "lucide-react";
-
-const capacitySchema = z.object({
-  maximum_guests: z.coerce.number().min(1, "Max guests must be at least 1").default(2),
-  maximum_adults: z.coerce.number().min(1, "Max adults must be at least 1").default(2),
-  maximum_children: z.coerce.number().min(0).default(0),
-  base_occupancy: z.coerce.number().min(1).default(2),
-  extra_bed_allowed: z.coerce.number().default(1),
-  extra_bed_price: z.coerce.number().min(0).default(0),
-  extra_bed_count: z.coerce.number().min(0).default(1),
-  floor_number: z.string().optional(),
-  is_bookable: z.boolean().default(true),
-  is_published: z.boolean().default(true),
-  is_active: z.boolean().default(true),
-  sort_order: z.coerce.number().min(0).default(1),
-  smoking_allowed: z.coerce.number().default(0),
-  pets_allowed: z.coerce.number().default(0),
-});
+import {
+  roomCapacitySchema,
+  defaultRoomCapacityValues,
+} from "../../schemas/room.schema.js";
 
 function RoomCapacityStep({ defaultValues, onSubmit }) {
   const {
@@ -30,22 +16,9 @@ function RoomCapacityStep({ defaultValues, onSubmit }) {
     formState: { errors },
     reset,
   } = useForm({
-    resolver: zodResolver(capacitySchema),
+    resolver: zodResolver(roomCapacitySchema),
     defaultValues: {
-      maximum_guests: 2,
-      maximum_adults: 2,
-      maximum_children: 0,
-      base_occupancy: 2,
-      extra_bed_allowed: 1,
-      extra_bed_price: 0,
-      extra_bed_count: 1,
-      floor_number: "2",
-      is_bookable: true,
-      is_published: true,
-      is_active: true,
-      sort_order: 1,
-      smoking_allowed: 0,
-      pets_allowed: 0,
+      ...defaultRoomCapacityValues,
       ...defaultValues,
     },
   });
