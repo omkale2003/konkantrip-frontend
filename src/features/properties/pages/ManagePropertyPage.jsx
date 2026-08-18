@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -10,11 +9,9 @@ import {
   IndianRupee,
   Star,
   XCircle,
-  Trash2,
-  Loader2,
 } from "lucide-react";
 
-import { useProperty, useDeleteProperty } from "../hooks/useProperties.js";
+import { useProperty } from "../hooks/useProperties.js";
 import { PropertyCompletionIndicator } from "../components/PropertyCompletionIndicator.jsx";
 import { ROUTES } from "../../../constants/routes.js";
 
@@ -61,11 +58,7 @@ function ManagePropertyPage() {
   const { propertyId } = useParams();
   const navigate = useNavigate();
 
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteErrorMsg, setDeleteErrorMsg] = useState("");
-
   const { data: propertyResponse, isLoading, isError, error } = useProperty(propertyId);
-  const { mutateAsync: deleteProperty, isPending: isDeleting } = useDeleteProperty();
 
   const property = propertyResponse?.data;
 
@@ -84,19 +77,6 @@ function ManagePropertyPage() {
     }
   };
 
-  const handleDeleteConfirm = async () => {
-    try {
-      setDeleteErrorMsg("");
-      await deleteProperty(propertyId);
-      setDeleteModalOpen(false);
-      navigate(ROUTES.OWNER_PROPERTIES);
-    } catch (err) {
-      setDeleteErrorMsg(
-        err.response?.data?.message || "Failed to delete property. Please try again."
-      );
-    }
-  };
-
   return (
     <div className="space-y-6 pb-12">
       {/* Back Link */}
@@ -108,17 +88,6 @@ function ManagePropertyPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to My Properties
         </Link>
-
-        {property && (
-          <button
-            type="button"
-            onClick={() => setDeleteModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50/50 px-3.5 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-100/70 hover:border-red-300 shadow-sm"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Property
-          </button>
-        )}
       </div>
 
       {isLoading && (
@@ -246,7 +215,7 @@ function ManagePropertyPage() {
             <h2 className="mb-4 text-lg font-semibold text-slate-900">
               Management Tools
             </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
               <button
                 type="button"
@@ -308,62 +277,8 @@ function ManagePropertyPage() {
                   </p>
                 </div>
               </Link>
-
-              <button
-                type="button"
-                onClick={() => setDeleteModalOpen(true)}
-                className="group flex flex-col items-start gap-3 rounded-xl border border-red-200 bg-white p-5 text-left shadow-sm transition hover:border-red-300 hover:bg-red-50 hover:shadow-md"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-red-700 transition group-hover:bg-red-600 group-hover:text-white">
-                  <Trash2 className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900">Delete Property</h3>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Remove this property from active listings.
-                  </p>
-                </div>
-              </button>
-
             </div>
           </section>
-
-          {/* Delete Property Modal */}
-          {deleteModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-              <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl space-y-4">
-                <h3 className="text-base font-bold text-slate-900">Delete Property</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Are you sure you want to delete <span className="font-bold text-slate-900">{property.property_name}</span>? This action cannot be undone.
-                </p>
-
-                {deleteErrorMsg && (
-                  <div className="rounded-lg bg-red-50 p-3 border border-red-200 text-xs text-red-700">
-                    {deleteErrorMsg}
-                  </div>
-                )}
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setDeleteModalOpen(false)}
-                    disabled={isDeleting}
-                    className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleDeleteConfirm}
-                    disabled={isDeleting}
-                    className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
-                  >
-                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete Property"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </>
       )}
     </div>

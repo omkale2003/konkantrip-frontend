@@ -1,17 +1,14 @@
 import {
+  BarChart3,
   Boxes,
+  Building2,
   CalendarDays,
-  ClipboardList,
   CreditCard,
-  Gauge,
-  Hotel,
+  Home,
+  LayoutGrid,
   MessageSquare,
   Settings,
-  Tags,
-  Users,
-  LogOut,
-  ShieldCheck,
-  User,
+  Tag,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import useAuth from "../../../features/auth/hooks/useAuth.js";
@@ -20,25 +17,19 @@ const allNavigationItems = [
   {
     label: "Dashboard",
     path: "/owner/dashboard",
-    icon: Gauge,
+    icon: Home,
   },
   {
     label: "My Properties",
     path: "/owner/properties",
-    icon: Hotel,
+    icon: Building2,
     permission: "properties:read",
   },
   {
     label: "Rooms",
     path: "/owner/rooms",
-    icon: ClipboardList,
+    icon: LayoutGrid,
     permission: "rooms:read",
-  },
-  {
-    label: "Staff & CRM",
-    path: "/owner/employees",
-    icon: Users,
-    permission: "employees:read",
   },
   {
     label: "Bookings",
@@ -55,7 +46,7 @@ const allNavigationItems = [
   {
     label: "Pricing",
     path: "/owner/pricing",
-    icon: Tags,
+    icon: Tag,
     permission: "pricing:read",
   },
   {
@@ -71,6 +62,12 @@ const allNavigationItems = [
     ownerOnly: true,
   },
   {
+    label: "Reports",
+    path: "/owner/reports",
+    icon: BarChart3,
+    ownerOnly: true,
+  },
+  {
     label: "Settings",
     path: "/owner/settings",
     icon: Settings,
@@ -79,7 +76,7 @@ const allNavigationItems = [
 ];
 
 function OwnerSidebar() {
-  const { user, isOwner, isEmployee, roleName, hasPermission, logout } = useAuth();
+  const { isOwner, hasPermission } = useAuth();
 
   const allowedNavigationItems = allNavigationItems.filter((item) => {
     if (isOwner) return true;
@@ -88,38 +85,22 @@ function OwnerSidebar() {
     return hasPermission(item.permission);
   });
 
-  const displayName = user?.first_name
-    ? `${user.first_name} ${user.last_name || ""}`.trim()
-    : user?.email || "User";
-
   return (
-    <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
+    <aside className="hidden h-screen w-64 shrink-0 flex-col border-r border-slate-100 bg-white lg:flex">
       {/* Brand & Portal Header */}
-      <div className="flex h-18 items-center justify-between border-b border-slate-100 px-6">
-        <div>
-          <p className="m-0 text-lg font-bold text-konkan-700">
-            KonkanTrip&trade;
-          </p>
-
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                isEmployee
-                  ? "bg-indigo-100 text-indigo-800"
-                  : "bg-emerald-100 text-emerald-800"
-              }`}
-            >
-              <ShieldCheck className="h-3 w-3" />
-              {roleName || (isOwner ? "Property Owner" : "Staff Member")}
-            </span>
-          </div>
-        </div>
+      <div className="flex h-20 flex-col justify-center border-b border-slate-100 px-6">
+        <h1 className="m-0 text-xl font-bold tracking-tight text-emerald-700">
+          KonkanTrip<span className="text-xs align-top font-semibold text-emerald-600">™</span>
+        </h1>
+        <p className="m-0 mt-0.5 text-xs text-slate-500 font-medium">
+          Property Owner Portal
+        </p>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-5">
-        <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-          {isEmployee ? "Operations Menu" : "Management"}
+      <nav className="flex-1 overflow-y-auto px-4 py-4">
+        <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          MANAGEMENT
         </p>
 
         <div className="space-y-1">
@@ -132,52 +113,29 @@ function OwnerSidebar() {
                 to={item.path}
                 className={({ isActive }) =>
                   [
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "flex items-center gap-3.5 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-150",
                     isActive
-                      ? "bg-konkan-50 text-konkan-700 font-semibold"
+                      ? "bg-emerald-50 text-emerald-700 font-semibold shadow-xs"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
                   ].join(" ")
                 }
               >
-                <Icon className="h-5 w-5 shrink-0" strokeWidth={1.8} />
-                <span>{item.label}</span>
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      className={`h-5 w-5 shrink-0 transition-colors ${
+                        isActive ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-600"
+                      }`}
+                      strokeWidth={1.8}
+                    />
+                    <span>{item.label}</span>
+                  </>
+                )}
               </NavLink>
             );
           })}
         </div>
       </nav>
-
-      {/* User Info & Footer */}
-      <div className="border-t border-slate-100 p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700 font-bold text-xs">
-              <User className="h-4 w-4 text-slate-500" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-slate-900 truncate">
-                {displayName}
-              </p>
-              <p className="text-[10px] text-slate-500 truncate">
-                {user?.email}
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={logout}
-            title="Sign out"
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </div>
-
-        <p className="m-0 text-[11px] text-slate-400">
-          KonkanTrip&trade; {isEmployee ? "Staff Portal" : "Property Hub"}
-        </p>
-      </div>
     </aside>
   );
 }

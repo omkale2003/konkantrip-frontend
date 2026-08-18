@@ -39,6 +39,7 @@ import InventoryHistoryPage from "../features/inventory/pages/InventoryHistoryPa
 import PricingPage from "../features/owner/pages/PricingPage.jsx";
 import ReviewsPage from "../features/owner/pages/ReviewsPage.jsx";
 import PaymentsPage from "../features/owner/pages/PaymentsPage.jsx";
+import ReportsPage from "../features/owner/pages/ReportsPage.jsx";
 import SettingsPage from "../features/owner/pages/SettingsPage.jsx";
 import ProfilePage from "../features/owner/pages/ProfilePage.jsx";
 
@@ -159,6 +160,11 @@ const router = createBrowserRouter([
           {
             path: ROUTES.OWNER_PAYMENTS,
             element: <PaymentsPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_REPORTS,
+            element: <ReportsPage />,
           },
 
           {

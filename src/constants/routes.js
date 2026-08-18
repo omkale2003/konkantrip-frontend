@@ -18,6 +18,7 @@ export const ROUTES = {
   OWNER_PRICING: "/owner/pricing",
   OWNER_REVIEWS: "/owner/reviews",
   OWNER_PAYMENTS: "/owner/payments",
+  OWNER_REPORTS: "/owner/reports",
   OWNER_SETTINGS: "/owner/settings",
   OWNER_PROFILE: "/owner/profile",
 };
