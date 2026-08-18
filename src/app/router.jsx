@@ -17,6 +17,7 @@ import ManagePropertyPage from "../features/properties/pages/ManagePropertyPage.
 import RoomsPage from "../features/rooms/pages/RoomsPage.jsx";
 import AddRoomPage from "../features/rooms/pages/AddRoomPage.jsx";
 import EditRoomPage from "../features/rooms/pages/EditRoomPage.jsx";
+import EmployeesPage from "../features/employees/pages/EmployeesPage.jsx";
 import BookingsPage from "../features/owner/pages/BookingsPage.jsx";
 import AvailabilityPage from "../features/owner/pages/AvailabilityPage.jsx";
 import PricingPage from "../features/owner/pages/PricingPage.jsx";
@@ -35,6 +36,11 @@ const router = createBrowserRouter([
 
   {
     path: ROUTES.LOGIN,
+    element: <LoginPage />,
+  },
+
+  {
+    path: "/employee/login",
     element: <LoginPage />,
   },
 
@@ -82,6 +88,11 @@ const router = createBrowserRouter([
           {
             path: "/owner/rooms/:roomId/edit",
             element: <EditRoomPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_EMPLOYEES,
+            element: <EmployeesPage />,
           },
 
           {

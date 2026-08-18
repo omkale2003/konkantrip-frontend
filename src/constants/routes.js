@@ -7,6 +7,7 @@ export const ROUTES = {
   OWNER_PROPERTIES: "/owner/properties",
   OWNER_ADD_PROPERTY: "/owner/properties/add",
   OWNER_ROOMS: "/owner/rooms",
+  OWNER_EMPLOYEES: "/owner/employees",
   OWNER_BOOKINGS: "/owner/bookings",
   OWNER_AVAILABILITY: "/owner/availability",
   OWNER_PRICING: "/owner/pricing",

@@ -19,6 +19,7 @@ import storageService from "../../../services/storage.service.js";
 import { useProperties } from "../../properties/hooks/useProperties.js";
 import { useRooms, useRoomLookups } from "../hooks/useRooms.js";
 import RoomList from "../components/RoomList.jsx";
+import PermissionGate from "../../../components/common/PermissionGate.jsx";
 
 function RoomsPage() {
   const owner = storageService.getOwner();
@@ -227,14 +228,16 @@ function RoomsPage() {
           </p>
         </div>
 
-        <Link
-          to="/owner/rooms/add"
-          state={{ propertyId: selectedPropertyId !== "ALL" ? selectedPropertyId : undefined }}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-emerald-800 shrink-0 self-start sm:self-auto"
-        >
-          <Plus className="h-4 w-4" />
-          Add Room
-        </Link>
+        <PermissionGate permission="rooms:create">
+          <Link
+            to="/owner/rooms/add"
+            state={{ propertyId: selectedPropertyId !== "ALL" ? selectedPropertyId : undefined }}
+            className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-emerald-800 shrink-0 self-start sm:self-auto"
+          >
+            <Plus className="h-4 w-4" />
+            Add Room
+          </Link>
+        </PermissionGate>
       </div>
 
       {/* Main Filter & Search Bar Container */}

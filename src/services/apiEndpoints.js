@@ -4,6 +4,10 @@ export const API_ENDPOINTS = {
     LOGIN: "/login",
     UPDATE_PASSWORD: "/update-password",
     LOGIN_LOGS: "/property_owner_login_logs",
+    EMPLOYEE_LOGIN: "/auth/employee/login",
+    EMPLOYEE_ME: "/auth/employee/me",
+    EMPLOYEE_LOGOUT: "/auth/employee/logout",
+    EMPLOYEE_UPDATE_PASSWORD: "/auth/employee/update-password",
   },
 
   PROFILE: "/profile",
@@ -78,5 +82,26 @@ export const API_ENDPOINTS = {
     NEARBY_PLACE_TYPES: "/lookups/master/nearby-place-types",
     TAGS: "/lookups/master/tags",
     LANGUAGES: "/lookups/master/languages",
+  },
+
+  EMPLOYEES: {
+    PERMISSIONS: "/permissions",
+    ROLES: "/roles",
+    ROLE_DETAIL: (id) => `/roles/${id}`,
+    LIST: "/employees",
+    DETAIL: (id) => `/employees/${id}`,
+    ASSIGN_PROPERTY: (id) => `/employees/assign-property/${id}`,
+    UNASSIGN_PROPERTY: (id, propertyId) =>
+      `/employees/unassign-property/${id}/${propertyId}`,
+    PROPERTY_EMPLOYEES: (propertyId) =>
+      `/properties/employees/${propertyId}`,
+    SESSIONS: (id) => `/employees/sessions/${id}`,
+    REVOKE_SESSION: (sessionId) => `/employees/sessions/single/${sessionId}`,
+    REVOKE_ALL_SESSIONS: (id) => `/employees/sessions/all/${id}`,
+  },
+
+  AUDIT: {
+    LIST: "/audit-trail",
+    DETAIL: (id) => `/audit-trail/${id}`,
   },
 };
