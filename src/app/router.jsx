@@ -11,6 +11,7 @@ import PropertiesList from "../views/PropertiesList.jsx";
 import AllPropertiesList from "../views/AllPropertiesList.jsx";
 import PendingApprovals from "../views/PendingApprovals.jsx";
 import MasterDataConfig from "../views/MasterDataConfig.jsx";
+import AdminConfig from "../views/AdminConfig.jsx";
 import GlobalAdminDashboard from "../views/GlobalAdminDashboard.jsx";
 
 import LoginPage from "../features/auth/pages/LoginPage.jsx";
@@ -194,7 +195,8 @@ const router = createBrowserRouter([
           { path: "owners/:ownerId/properties", element: <PropertiesList /> },
           { path: "properties", element: <AllPropertiesList /> },
           { path: "pending", element: <PendingApprovals /> },
-          { path: "master-data", element: <MasterDataConfig /> }
+          { path: "master-data", element: <MasterDataConfig /> },
+          { path: "settings", element: <AdminConfig /> }
         ]
       }
     ]

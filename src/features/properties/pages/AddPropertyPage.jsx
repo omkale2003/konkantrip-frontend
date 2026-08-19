@@ -338,6 +338,7 @@ function AddPropertyPage() {
         propertyId,
         propertyData: {
           property_name: propertyData?.property_name,
+          property_status: "Pending",
         },
       });
 

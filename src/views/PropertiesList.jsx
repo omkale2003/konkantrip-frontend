@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { ImageIcon } from 'lucide-react';
 import api from '../api/axios';
 
 import PropertyFullDetailsView from '../components/PropertyFullDetailsView';
@@ -64,25 +65,43 @@ export default function PropertiesList() {
                             return (
                                 <div key={property.property_id} className={`transition-colors flex flex-col ${isExpanded ? 'bg-slate-50/20' : 'hover:bg-slate-50/50'}`}>
                                     <div className="p-6 cursor-pointer" onClick={() => setExpandedPropertyId(isExpanded ? null : property.property_id)}>
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <h3 className="text-[17px] font-bold text-slate-800">{property.property_name}</h3>
-                                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide border ${property.property_status === 'Approved' ? 'bg-green-50 text-green-700 border-green-200' :
-                                                    property.property_status === 'Pending' ? 'bg-slate-100 text-slate-600 border-slate-200' :
-                                                        'bg-red-50 text-red-600 border-red-200'
-                                                    }`}>
-                                                    {property.property_status}
-                                                </span>
-                                            </div>
-                                            <svg className={`w-5 h-5 text-slate-400 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                                        </div>
+                                        <div className="flex flex-col md:flex-row justify-between gap-6">
+                                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 flex-1">
+                                                <div className="w-24 h-24 sm:w-20 sm:h-20 shrink-0 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
+                                                    {property.cover_image || property.cdn_url ? (
+                                                        <img src={property.cover_image || property.cdn_url} alt={property.property_name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
+                                                            <ImageIcon className="w-6 h-6 mb-1 opacity-50" />
+                                                            <span className="text-[9px] font-semibold uppercase">No Image</span>
+                                                        </div>
+                                                    )}
+                                                </div>
 
-                                        <div className="flex items-center gap-3 text-[13px] text-slate-500 font-medium">
-                                            <span>{property.property_type}</span>
-                                            <span className="text-slate-300">•</span>
-                                            <span>{property.property_category}</span>
-                                            <span className="text-slate-300">•</span>
-                                            <span>{property.total_rooms} Rooms</span>
+                                                <div>
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <h3 className="text-[17px] font-bold text-slate-800">{property.property_name}</h3>
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide border ${property.property_status === 'Approved' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                            property.property_status === 'Pending' ? 'bg-slate-100 text-slate-600 border-slate-200' :
+                                                                'bg-red-50 text-red-600 border-red-200'
+                                                            }`}>
+                                                            {property.property_status}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-3 text-[13px] text-slate-500 font-medium">
+                                                        <span>{property.property_type}</span>
+                                                        <span className="text-slate-300">•</span>
+                                                        <span>{property.property_category}</span>
+                                                        <span className="text-slate-300">•</span>
+                                                        <span>{property.total_rooms} Rooms</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center mt-4 md:mt-0">
+                                                <svg className={`w-5 h-5 text-slate-400 transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                                            </div>
                                         </div>
                                     </div>
 

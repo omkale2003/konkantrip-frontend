@@ -84,9 +84,9 @@ const PropertyFullDetailsView = ({ propertyId, onAction, hideActions }) => {
 
                 {activeTab === 'Policies' && (
                     <div className="animate-fadeIn space-y-6">
-                        {policies && policies.length > 0 ? policies.map(p => (
-                            <EditableSection key={p.policy_id} data={p} tableName="property_policies" primaryKeyField="policy_id" onRefresh={fetchData} />
-                        )) : <div className="p-8 text-center bg-white rounded-lg border border-slate-200 text-slate-400">No policy rules mapped.</div>}
+                        {policies ? (
+                            <EditableSection data={policies} tableName="property_policies" primaryKeyField="policy_id" onRefresh={fetchData} />
+                        ) : <div className="p-8 text-center bg-white rounded-lg border border-slate-200 text-slate-400">No policy rules mapped.</div>}
                     </div>
                 )}
 
@@ -112,12 +112,25 @@ const PropertyFullDetailsView = ({ propertyId, onAction, hideActions }) => {
                 {activeTab === 'Media' && (
                     <div className="animate-fadeIn space-y-8">
                         <div>
-                            <h4 className="font-bold text-[var(--color-konkan-700)] uppercase tracking-widest border-b border-slate-200 pb-2 mb-4">Images Metadata ({images?.length || 0})</h4>
+                            <h4 className="font-bold text-[var(--color-konkan-700)] uppercase tracking-widest border-b border-slate-200 pb-2 mb-4">Property Photos ({images?.length || 0})</h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+                                {images?.map((img, idx) => (
+                                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 shadow-sm bg-slate-100 group">
+                                        <img src={img.cdn_url || img.thumbnail_url} alt={img.image_title || 'Property Image'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                        {img.is_cover_image === 1 || img.is_cover_image === true ? (
+                                            <div className="absolute top-2 left-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm">COVER</div>
+                                        ) : null}
+                                    </div>
+                                ))}
+                                {images?.length === 0 && <span className="text-slate-400 italic text-[13px] col-span-full">No media files uploaded.</span>}
+                            </div>
+
+                            <h4 className="font-bold text-[var(--color-konkan-700)] uppercase tracking-widest border-b border-slate-200 pb-2 mb-4">Images Metadata</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {images?.map((img, idx) => (
                                     <EditableSection key={idx} data={img} tableName="property_images" primaryKeyField="img_id" onRefresh={fetchData} />
                                 ))}
-                                {images?.length === 0 && <span className="text-slate-400 italic text-[13px]">No records found.</span>}
+                                {images?.length === 0 && <span className="text-slate-400 italic text-[13px]">No metadata records found.</span>}
                             </div>
                         </div>
 

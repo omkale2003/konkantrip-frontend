@@ -24,6 +24,11 @@ export default function AdminSubNav() {
             name: "Master Data Config",
             path: "/admin/dashboard/master-data",
             matchRegex: /^\/admin\/dashboard\/master-data.*$/
+        },
+        {
+            name: "System Settings",
+            path: "/admin/dashboard/settings",
+            matchRegex: /^\/admin\/dashboard\/settings.*$/
         }
     ];
 
