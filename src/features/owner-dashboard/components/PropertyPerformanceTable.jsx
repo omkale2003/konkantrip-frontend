@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Building2, ChevronRight, Plus, Star } from "lucide-react";
 import { ROUTES } from "../../../constants/routes.js";
+import { getImageUrl, handleImageError, DEFAULT_PROPERTY_IMAGE } from "../../../utils/imageUrl.js";
 
 export function PropertyPerformanceTable({
   properties = [],
@@ -78,7 +79,7 @@ export function PropertyPerformanceTable({
             </thead>
             <tbody className="divide-y divide-slate-50 font-medium text-slate-700">
               {properties.slice(0, 5).map((property, idx) => {
-                const coverImage = property.cover_image || property.cdn_url;
+                const coverImage = getImageUrl(property);
                 const location =
                   property.city ||
                   property.taluka ||
@@ -112,6 +113,7 @@ export function PropertyPerformanceTable({
                           <img
                             src={coverImage}
                             alt={property.property_name}
+                            onError={(e) => handleImageError(e, DEFAULT_PROPERTY_IMAGE)}
                             className="h-9 w-9 rounded-xl object-cover ring-1 ring-slate-200/80 shrink-0"
                           />
                         ) : (

@@ -17,6 +17,7 @@ import {
   usePropertyImages,
   useUpdatePropertyImage,
 } from "../../../hooks/usePropertyImages.js";
+import { getImageUrl, handleImageError, DEFAULT_PROPERTY_IMAGE } from "../../../../../utils/imageUrl.js";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -134,24 +135,20 @@ function PhotosStep({
     try {
       for (let i = 0; i < stagedFiles.length; i++) {
         const item = stagedFiles[i];
-        const dataUrl = await readFileAsDataURL(item.file);
-        const ext = item.name.split(".").pop() || "jpg";
         const isFirstImage = propertyImages.length === 0 && i === 0;
+
+        const formData = new FormData();
+        formData.append("file", item.file);
+        formData.append("image_type_id", String(defaultTypeId));
+        if (item.image_title) formData.append("image_title", item.image_title);
+        if (item.image_alt_text) formData.append("image_alt_text", item.image_alt_text);
+        formData.append("image_order", String(propertyImages.length + i + 1));
+        formData.append("is_cover_image", String(isFirstImage));
+        formData.append("is_active", "true");
 
         await addImageMutation.mutateAsync({
           propertyId,
-          imageData: {
-            image_type_id: defaultTypeId,
-            image_title: item.image_title,
-            image_alt_text: item.image_alt_text,
-            cdn_url: dataUrl,
-            mime_type: item.type,
-            file_extension: ext,
-            file_size: item.size,
-            image_order: propertyImages.length + i + 1,
-            is_cover_image: isFirstImage,
-            is_active: true,
-          },
+          imageData: formData,
         });
       }
 
@@ -430,8 +427,9 @@ function PhotosStep({
                   {/* Thumbnail */}
                   <div className="relative aspect-4/3 w-full overflow-hidden rounded-lg bg-slate-100">
                     <img
-                      src={img.cdn_url}
+                      src={getImageUrl(img)}
                       alt={img.image_title || "Property photo"}
+                      onError={(e) => handleImageError(e, DEFAULT_PROPERTY_IMAGE)}
                       className="h-full w-full object-cover"
                     />
 

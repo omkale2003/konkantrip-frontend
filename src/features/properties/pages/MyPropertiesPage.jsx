@@ -22,6 +22,7 @@ import {
 import { useProperties } from "../hooks/useProperties.js";
 import { usePropertyCompletion } from "../hooks/usePropertyCompletion.js";
 import storageService from "../../../services/storage.service.js";
+import { getImageUrl, handleImageError, DEFAULT_PROPERTY_IMAGE } from "../../../utils/imageUrl.js";
 
 // Helper for type icons
 const getPropertyTypeIcon = (type = "") => {
@@ -477,7 +478,7 @@ function MyPropertiesPage() {
                     {properties.map((property) => {
                       const TypeIcon = getPropertyTypeIcon(property.property_type);
                       const statusCfg = getStatusBadgeConfig(property.property_status);
-                      const imageUrl = property.cdn_url || property.storage_path || property.image_url || property.cover_image;
+                      const imageUrl = getImageUrl(property);
 
                       return (
                         <tr key={property.property_id} className="hover:bg-slate-50/60 transition-colors">
@@ -489,6 +490,7 @@ function MyPropertiesPage() {
                                   <img
                                     src={imageUrl}
                                     alt={property.property_name}
+                                    onError={(e) => handleImageError(e, DEFAULT_PROPERTY_IMAGE)}
                                     className="h-full w-full object-cover"
                                   />
                                 ) : (
@@ -594,7 +596,7 @@ function MyPropertiesPage() {
               {properties.map((property) => {
                 const TypeIcon = getPropertyTypeIcon(property.property_type);
                 const statusCfg = getStatusBadgeConfig(property.property_status);
-                const imageUrl = property.cdn_url || property.storage_path || property.image_url || property.cover_image;
+                const imageUrl = getImageUrl(property);
 
                 return (
                   <div
@@ -608,6 +610,7 @@ function MyPropertiesPage() {
                           <img
                             src={imageUrl}
                             alt={property.property_name}
+                            onError={(e) => handleImageError(e, DEFAULT_PROPERTY_IMAGE)}
                             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (

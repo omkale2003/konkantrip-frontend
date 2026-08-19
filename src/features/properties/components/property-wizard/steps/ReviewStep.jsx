@@ -24,6 +24,7 @@ import { usePropertyAmenities } from "../../../hooks/usePropertyAmenities.js";
 import { usePropertyImages } from "../../../hooks/usePropertyImages.js";
 import { usePropertyPolicies } from "../../../hooks/usePropertyPolicies.js";
 import { usePropertyDocuments } from "../../../hooks/usePropertyDocuments.js";
+import { getImageUrl, handleImageError, DEFAULT_PROPERTY_IMAGE } from "../../../../../utils/imageUrl.js";
 
 import { ROUTES } from "../../../../../constants/routes.js";
 
@@ -376,8 +377,9 @@ function ReviewStep({
                 className="group relative aspect-4/3 overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
               >
                 <img
-                  src={img.cdn_url}
+                  src={getImageUrl(img)}
                   alt={img.image_title || "Photo"}
+                  onError={(e) => handleImageError(e, DEFAULT_PROPERTY_IMAGE)}
                   className="h-full w-full object-cover"
                 />
                 {img.is_cover_image && (

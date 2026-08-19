@@ -7,6 +7,7 @@ import {
   useDeleteRoomImage,
   useRoomLookups,
 } from "../../hooks/useRooms.js";
+import { getImageUrl, handleImageError, DEFAULT_ROOM_IMAGE } from "../../../../utils/imageUrl.js";
 
 function RoomImagesStep({ roomId, onSubmitNext }) {
   const { data: imagesData, isLoading: isLoadingImages } = useRoomImages(roomId);
@@ -215,8 +216,9 @@ function RoomImagesStep({ roomId, onSubmitNext }) {
               className="group relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-sm"
             >
               <img
-                src={image.cdn_url || image.storage_path || image.image_url}
+                src={getImageUrl(image, DEFAULT_ROOM_IMAGE)}
                 alt={image.image_title || "Room Image"}
+                onError={(e) => handleImageError(e, DEFAULT_ROOM_IMAGE)}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
 

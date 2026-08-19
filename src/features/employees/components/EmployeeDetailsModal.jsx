@@ -17,6 +17,7 @@ import {
   HeartHandshake,
   Edit2,
 } from "lucide-react";
+import { getImageUrl } from "../../../utils/imageUrl.js";
 
 function getStatusBadge(status) {
   switch (status) {
@@ -97,8 +98,11 @@ function EmployeeDetailsModal({
             <div className="flex items-center gap-4">
               {employee.avatar_url ? (
                 <img
-                  src={employee.avatar_url}
+                  src={getImageUrl(employee.avatar_url, "")}
                   alt={fullName}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
                   className="h-16 w-16 rounded-full border-2 border-emerald-200 object-cover"
                 />
               ) : (

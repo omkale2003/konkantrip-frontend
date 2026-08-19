@@ -14,6 +14,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { useState } from "react";
+import { getImageUrl } from "../../../utils/imageUrl.js";
 
 function getStatusBadge(status) {
   switch (status) {
@@ -123,8 +124,11 @@ function EmployeeTable({
                       <div className="flex items-center gap-3">
                         {emp.avatar_url ? (
                           <img
-                            src={emp.avatar_url}
+                            src={getImageUrl(emp.avatar_url, "")}
                             alt={fullName}
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
                             className="h-10 w-10 rounded-full border border-slate-200 object-cover"
                           />
                         ) : (

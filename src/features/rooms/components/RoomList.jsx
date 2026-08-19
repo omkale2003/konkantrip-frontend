@@ -17,6 +17,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useDeleteRoom } from "../hooks/useRooms.js";
+import { getImageUrl, handleImageError, DEFAULT_ROOM_IMAGE } from "../../../utils/imageUrl.js";
 
 // Helper for type badges
 const getTypeBadgeStyle = (typeName = "") => {
@@ -211,7 +212,7 @@ function RoomList({
           {paginatedRooms.map((room, idx) => {
             const maxGuests = room.maximum_guests || room.base_occupancy || 2;
             const price = getRoomPrice(room, startIndex + idx);
-            const imageUrl = room.cdn_url || room.storage_path || room.image_url;
+            const imageUrl = getImageUrl(room, DEFAULT_ROOM_IMAGE);
 
             return (
               <div
@@ -225,6 +226,7 @@ function RoomList({
                       <img
                         src={imageUrl}
                         alt={room.room_name}
+                        onError={(e) => handleImageError(e, DEFAULT_ROOM_IMAGE)}
                         className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
@@ -364,10 +366,11 @@ function RoomList({
                       <td className="px-5 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <div className="h-12 w-14 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
-                            {room.cdn_url || room.storage_path || room.image_url ? (
+                            {getImageUrl(room, DEFAULT_ROOM_IMAGE) ? (
                               <img
-                                src={room.cdn_url || room.storage_path || room.image_url}
+                                src={getImageUrl(room, DEFAULT_ROOM_IMAGE)}
                                 alt={room.room_name}
+                                onError={(e) => handleImageError(e, DEFAULT_ROOM_IMAGE)}
                                 className="h-full w-full object-cover"
                               />
                             ) : (

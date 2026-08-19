@@ -12,6 +12,7 @@ import {
   UserX,
   UserPlus,
 } from "lucide-react";
+import { getImageUrl } from "../../../utils/imageUrl.js";
 
 function getStatusBadge(status) {
   switch (status) {
@@ -93,8 +94,11 @@ function EmployeeCardGrid({
                 <div className="flex items-center gap-3">
                   {emp.avatar_url ? (
                     <img
-                      src={emp.avatar_url}
+                      src={getImageUrl(emp.avatar_url, "")}
                       alt={fullName}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
                       className="h-12 w-12 rounded-full border border-slate-200 object-cover"
                     />
                   ) : (
