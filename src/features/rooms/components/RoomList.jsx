@@ -15,8 +15,9 @@ import {
   Mountain,
   RotateCcw,
   Plus,
+  Power,
 } from "lucide-react";
-import { useDeleteRoom } from "../hooks/useRooms.js";
+import { useDeleteRoom, useUpdateRoom } from "../hooks/useRooms.js";
 import { getImageUrl, handleImageError, DEFAULT_ROOM_IMAGE } from "../../../utils/imageUrl.js";
 
 // Helper for type badges
@@ -130,6 +131,26 @@ function RoomList({
   const pageSize = viewMode === "grid" ? 9 : 10;
 
   const { mutate: deleteRoom, isPending: isDeleting } = useDeleteRoom();
+  const { mutate: updateRoom, isPending: isUpdating } = useUpdateRoom();
+  const [updatingRoomId, setUpdatingRoomId] = useState(null);
+
+  const handleToggleBookable = (room, e) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    setUpdatingRoomId(room.room_id);
+    const newBookable = !(room.is_bookable === 1 || room.is_bookable === true);
+    updateRoom(
+      {
+        roomId: room.room_id,
+        data: {
+          is_bookable: newBookable,
+        },
+      },
+      {
+        onSettled: () => setUpdatingRoomId(null),
+      }
+    );
+  };
 
   const handleDelete = () => {
     if (roomToDelete) {
@@ -297,6 +318,25 @@ function RoomList({
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => handleToggleBookable(room, e)}
+                      disabled={updatingRoomId === room.room_id}
+                      className={`inline-flex h-8 items-center gap-1.5 px-2.5 rounded-lg border text-xs font-semibold shadow-2xs transition-colors ${
+                        room.is_bookable
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          : "border-slate-200 bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                      title={room.is_bookable ? "Room is Bookable (Click to Pause)" : "Room is Paused (Click to Make Bookable)"}
+                    >
+                      {updatingRoomId === room.room_id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-600" />
+                      ) : (
+                        <Power className="h-3.5 w-3.5" />
+                      )}
+                      <span>{room.is_bookable ? "Bookable" : "Paused"}</span>
+                    </button>
+
                     <Link
                       to={`/owner/rooms/${room.room_id}/edit`}
                       state={{ propertyId: room.property_id || propertyId }}
@@ -425,9 +465,27 @@ function RoomList({
                         </div>
                       </td>
 
-                      {/* Status Column */}
+                      {/* Status Column with quick toggle */}
                       <td className="px-5 py-4 whitespace-nowrap">
-                        {renderStatusBadge(room.room_status_name, room.is_published, room.is_active)}
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleBookable(room, e)}
+                          disabled={updatingRoomId === room.room_id}
+                          className="cursor-pointer transition-opacity hover:opacity-80 disabled:opacity-50"
+                          title={room.is_bookable ? "Click to Pause booking availability" : "Click to Enable booking availability"}
+                        >
+                          {updatingRoomId === room.room_id ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating...
+                            </span>
+                          ) : (
+                            renderStatusBadge(
+                              room.room_status_name || (room.is_bookable ? "Available" : "Paused"),
+                              room.is_published,
+                              room.is_active && room.is_bookable
+                            )
+                          )}
+                        </button>
                       </td>
 
                       {/* Price/Night Column */}

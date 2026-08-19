@@ -358,7 +358,7 @@ function LocationStep({
             C. Map Location
           </h3>
           <p className="mt-0.5 text-xs text-slate-500">
-            Coordinates and Google Maps links (optional).
+            Coordinates and Google Maps link (Required for guest directions).
           </p>
         </div>
 
@@ -429,7 +429,7 @@ function LocationStep({
               htmlFor="google_map_url"
               className="mb-2 block text-sm font-medium text-slate-700"
             >
-              Google Maps URL
+              Google Maps URL <span className="text-red-500">*</span>
             </label>
 
             <input

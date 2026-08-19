@@ -12,7 +12,7 @@ import InventoryHeader from "../components/InventoryHeader.jsx";
 function InventorySetupPage() {
   const owner = storageService.getOwner();
   const { data: propertiesRes } = useProperties({
-    owner_id: owner?.p_owner_id,
+    owner_id: owner?.p_owner_id || undefined,
     limit: 100,
   });
 

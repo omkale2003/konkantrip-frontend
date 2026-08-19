@@ -13,7 +13,7 @@ import {
 function RoomBasicDetailsStep({ defaultValues, onSubmit, isSubmitting, initialPropertyId }) {
   const owner = storageService.getOwner();
   const { data: propertiesData } = useProperties({
-    owner_id: owner?.p_owner_id,
+    owner_id: owner?.p_owner_id || undefined,
     limit: 100,
   });
   const { data: roomTypesData } = useRoomLookups("ROOM_TYPES");

@@ -181,14 +181,13 @@ export const propertyLocationSchema = z.object({
   ),
 
   google_map_url: z.preprocess(
-    (val) => (val === null || val === undefined ? "" : String(val)),
+    (val) => (val === null || val === undefined ? "" : String(val).trim()),
     z
       .string()
-      .optional()
-      .or(z.literal(""))
+      .min(1, "Google Maps URL is required")
       .refine(
-        (val) => !val || /^https?:\/\/.+/i.test(val.trim()),
-        "Enter a valid URL (e.g. https://maps.google.com/...)"
+        (val) => /^https?:\/\/.+/i.test(val.trim()),
+        "Enter a valid Map URL (e.g. https://maps.google.com/...)"
       )
   ),
 });

@@ -25,7 +25,7 @@ import CreateStopSellModal from "../components/CreateStopSellModal.jsx";
 function StopSellPage() {
   const owner = storageService.getOwner();
   const { data: propertiesRes } = useProperties({
-    owner_id: owner?.p_owner_id,
+    owner_id: owner?.p_owner_id || undefined,
     limit: 100,
   });
 

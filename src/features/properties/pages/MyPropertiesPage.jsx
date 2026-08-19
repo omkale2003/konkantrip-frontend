@@ -17,10 +17,12 @@ import {
   Edit2,
   Loader2,
   SlidersHorizontal,
+  Trash2,
 } from "lucide-react";
 
 import { useProperties } from "../hooks/useProperties.js";
 import { usePropertyCompletion } from "../hooks/usePropertyCompletion.js";
+import DeletePropertyModal from "../components/DeletePropertyModal.jsx";
 import storageService from "../../../services/storage.service.js";
 import { getImageUrl, handleImageError, DEFAULT_PROPERTY_IMAGE } from "../../../utils/imageUrl.js";
 
@@ -122,8 +124,9 @@ function MyPropertiesPage() {
   const [selectedCompletion, setSelectedCompletion] = useState("ALL");
   
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const [viewMode, setViewMode] = useState("table");
+  const [viewMode, setViewMode] = useState("grid");
   const [activeMenuId, setActiveMenuId] = useState(null);
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
 
   const {
     data,
@@ -135,7 +138,7 @@ function MyPropertiesPage() {
     limit: 20,
     search,
     status: status === "ALL" ? "" : status,
-    owner_id: owner?.p_owner_id,
+    owner_id: owner?.p_owner_id || undefined,
   });
 
   const rawProperties = data?.data || [];
@@ -579,6 +582,17 @@ function MyPropertiesPage() {
                                     <Edit2 className="h-3.5 w-3.5 text-blue-600" />
                                     Edit Details
                                   </Link>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenuId(null);
+                                      setPropertyToDelete(property);
+                                    }}
+                                    className="flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5 text-rose-600" />
+                                    {property.property_status === "Draft" ? "Delete Draft" : "Delete Property"}
+                                  </button>
                                 </div>
                               )}
                             </div>
@@ -607,7 +621,7 @@ function MyPropertiesPage() {
                       {/* Image Cover */}
                       <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
                         {imageUrl ? (
-                          <img
+                           <img
                             src={imageUrl}
                             alt={property.property_name}
                             onError={(e) => handleImageError(e, DEFAULT_PROPERTY_IMAGE)}
@@ -620,7 +634,7 @@ function MyPropertiesPage() {
                         )}
 
                         {/* Status Floating Badge */}
-                        <div className="absolute top-3 right-3">
+                        <div className="absolute top-3 right-3 flex items-center gap-1.5">
                           <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusCfg.pillClass}`}>
                             <span className={`h-1.5 w-1.5 rounded-full ${statusCfg.dotClass}`} />
                             {statusCfg.label}
@@ -665,11 +679,20 @@ function MyPropertiesPage() {
                       </span>
 
                       <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPropertyToDelete(property)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600 transition-all shadow-2xs"
+                          title={property.property_status === "Draft" ? "Delete Draft Property" : "Delete Property"}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+
                         <Link
                           to={`/owner/properties/${property.property_id}`}
                           className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-emerald-800 transition-all"
                         >
-                          Manage Property
+                          Manage
                           <ChevronRight className="h-3.5 w-3.5" />
                         </Link>
                       </div>
@@ -727,6 +750,13 @@ function MyPropertiesPage() {
           )}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeletePropertyModal
+        isOpen={Boolean(propertyToDelete)}
+        onClose={() => setPropertyToDelete(null)}
+        property={propertyToDelete}
+      />
     </div>
   );
 }
