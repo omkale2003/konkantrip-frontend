@@ -1,18 +1,14 @@
 /**
- * Default curated fallback images for properties, rooms, and avatars
+ * Default empty fallback images (no dummy or external placeholder links)
  */
-export const DEFAULT_PROPERTY_IMAGE =
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80";
-
-export const DEFAULT_ROOM_IMAGE =
-  "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80";
-
+export const DEFAULT_PROPERTY_IMAGE = "";
+export const DEFAULT_ROOM_IMAGE = "";
 export const DEFAULT_AVATAR_IMAGE = "";
 
 /**
  * Resolves an image URL whether it's absolute, relative (/uploads/...), Windows-style path, or an image object.
  */
-export function getImageUrl(img, fallback = DEFAULT_PROPERTY_IMAGE) {
+export function getImageUrl(img, fallback = "") {
   if (!img) return fallback;
 
   let raw = "";
@@ -43,6 +39,11 @@ export function getImageUrl(img, fallback = DEFAULT_PROPERTY_IMAGE) {
   if (!raw || typeof raw !== "string") return fallback;
   raw = raw.trim();
 
+  // If dummy unsplash or non-existent seed domain was stored, return empty fallback
+  if (raw.includes("unsplash.com") || raw.includes("cdn.konkantrip.com")) {
+    return fallback;
+  }
+
   // Normalize Windows backslashes to forward slashes
   raw = raw.replace(/\\/g, "/");
 
@@ -52,19 +53,6 @@ export function getImageUrl(img, fallback = DEFAULT_PROPERTY_IMAGE) {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
     const backendHost = apiBase.replace(/\/api\/v1\/?$/, "");
     raw = raw.replace("http://localhost:5000", backendHost);
-  }
-
-  // If mock seed domain cdn.konkantrip.com is present (non-existent domain in local dev), map gracefully
-  if (raw.includes("cdn.konkantrip.com")) {
-    if (
-      raw.includes("room") ||
-      raw.includes("bedroom") ||
-      raw.includes("interior") ||
-      raw.includes("bathroom")
-    ) {
-      return DEFAULT_ROOM_IMAGE;
-    }
-    return DEFAULT_PROPERTY_IMAGE;
   }
 
   // Already absolute URL or blob / data URI
@@ -107,13 +95,16 @@ export function getImageUrl(img, fallback = DEFAULT_PROPERTY_IMAGE) {
 }
 
 /**
- * Image error handler to safely switch to fallback placeholder if an image fails to load
+ * Image error handler to safely hide broken image or set to provided fallback
  */
-export function handleImageError(e, fallback = DEFAULT_PROPERTY_IMAGE) {
+export function handleImageError(e, fallback = "") {
   if (e?.currentTarget) {
     e.currentTarget.onerror = null;
     if (fallback) {
       e.currentTarget.src = fallback;
+    } else {
+      e.currentTarget.style.display = "none";
     }
   }
 }
+
