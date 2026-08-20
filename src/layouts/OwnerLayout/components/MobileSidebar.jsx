@@ -9,6 +9,7 @@ import {
   MessageSquare,
   Settings,
   Tag,
+  Users,
   X,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
@@ -31,6 +32,12 @@ const allNavigationItems = [
     path: "/owner/rooms",
     icon: LayoutGrid,
     permission: "rooms:read",
+  },
+  {
+    label: "Staff & CRM",
+    path: "/owner/employees",
+    icon: Users,
+    permission: "employees:read",
   },
   {
     label: "Bookings",
