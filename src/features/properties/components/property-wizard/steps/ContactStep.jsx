@@ -100,8 +100,26 @@ function ContactStep({
     }
   }, [initialValues, reset, savedContacts.length]);
 
+  // Detect if a Manager contact is already assigned
+  const existingManagerContact = savedContacts.find(
+    (c) =>
+      (c.contact_type_name?.toLowerCase().includes("manager") || Number(c.contact_type_id) === 1) &&
+      String(c.contact_id) !== String(editingContactId)
+  );
+
   const handleSaveContactForm = async (data) => {
     setLocalServerError("");
+    const contactTypeId = Number(data.contact_type_id || 1);
+    const selectedType = contactTypes.find((t) => Number(t.contact_type_id) === contactTypeId);
+    const isManagerType = selectedType?.contact_type_name?.toLowerCase().includes("manager") || contactTypeId === 1;
+
+    if (isManagerType && existingManagerContact) {
+      setLocalServerError(
+        `A Manager contact (${existingManagerContact.contact_name}) is already assigned to this property. Each property can only have one Manager contact.`
+      );
+      return;
+    }
+
     const cleanedPayload = {
       ...data,
       contact_name: data.contact_name?.trim(),
@@ -111,7 +129,7 @@ function ContactStep({
       whatsapp_number: data.whatsapp_number?.trim() || undefined,
       email: data.email?.trim() || undefined,
       website: data.website?.trim() || undefined,
-      contact_type_id: Number(data.contact_type_id || 1),
+      contact_type_id: contactTypeId,
       is_primary: Boolean(data.is_primary ?? (savedContacts.length === 0)),
     };
 
@@ -323,11 +341,23 @@ function ContactStep({
                     {...register("contact_type_id")}
                     className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
                   >
-                    {contactTypes.map((type) => (
-                      <option key={type.contact_type_id} value={type.contact_type_id}>
-                        {type.contact_type_name}
-                      </option>
-                    ))}
+                    {contactTypes.map((type) => {
+                      const isManagerOption =
+                        type.contact_type_name?.toLowerCase().includes("manager") ||
+                        Number(type.contact_type_id) === 1;
+                      const isOptionDisabled = Boolean(isManagerOption && existingManagerContact);
+
+                      return (
+                        <option
+                          key={type.contact_type_id}
+                          value={type.contact_type_id}
+                          disabled={isOptionDisabled}
+                        >
+                          {type.contact_type_name}
+                          {isOptionDisabled ? ` (Already assigned: ${existingManagerContact.contact_name})` : ""}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 

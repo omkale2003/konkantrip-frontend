@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, Shield, CheckSquare, Square, AlertCircle } from "lucide-react";
+import SalesforceProfileMatrix from "./SalesforceProfileMatrix.jsx";
 
 const roleSchema = z.object({
   role_name: z.string().min(1, "Role name is required").max(100),
@@ -189,7 +190,7 @@ function RoleFormModal({
                   Assigned Permissions ({selectedPermissions.length} selected)
                 </h4>
                 <p className="text-[11px] text-slate-500">
-                  Select permissions granted to users with this role
+                  Configure granular object access and operational permissions
                 </p>
               </div>
 
@@ -197,7 +198,7 @@ function RoleFormModal({
                 <button
                   type="button"
                   onClick={handleSelectAll}
-                  className="font-semibold text-indigo-600 hover:underline"
+                  className="font-semibold text-indigo-600 hover:underline cursor-pointer"
                 >
                   Select All
                 </button>
@@ -205,76 +206,20 @@ function RoleFormModal({
                 <button
                   type="button"
                   onClick={handleDeselectAll}
-                  className="font-semibold text-slate-500 hover:underline"
+                  className="font-semibold text-slate-500 hover:underline cursor-pointer"
                 >
                   Clear All
                 </button>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {Object.entries(groupedPermissions).map(([moduleName, perms]) => {
-                const allModuleSelected = perms.every((p) =>
-                  selectedPermissions.includes(p.permission_id)
-                );
-
-                return (
-                  <div
-                    key={moduleName}
-                    className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5"
-                  >
-                    <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                        {moduleName} Module
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleToggleModule(moduleName)}
-                        className="text-[11px] font-semibold text-indigo-600 hover:underline"
-                      >
-                        {allModuleSelected ? "Deselect Module" : "Select Module"}
-                      </button>
-                    </div>
-
-                    <div className="mt-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      {perms.map((p) => {
-                        const isChecked = selectedPermissions.includes(
-                          p.permission_id
-                        );
-
-                        return (
-                          <label
-                            key={p.permission_id}
-                            className={`flex cursor-pointer items-start gap-2 rounded-lg border p-2 text-xs transition ${
-                              isChecked
-                                ? "border-indigo-300 bg-indigo-50/60 text-indigo-900"
-                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() =>
-                                handleTogglePermission(p.permission_id)
-                              }
-                              className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                            />
-                            <div>
-                              <p className="font-semibold capitalize">
-                                {p.action} {p.module}
-                              </p>
-                              <p className="text-[11px] text-slate-500">
-                                {p.description}
-                              </p>
-                            </div>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <SalesforceProfileMatrix
+              availablePermissions={permissions}
+              selectedPermissionIds={selectedPermissions}
+              onTogglePermission={handleTogglePermission}
+              onToggleModule={handleToggleModule}
+              isReadOnly={false}
+            />
           </div>
 
           {/* Footer Submit */}
@@ -282,14 +227,14 @@ function RoleFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-lg bg-indigo-600 px-5 py-2 text-xs font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60"
+              className="rounded-lg bg-indigo-600 px-5 py-2 text-xs font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-60 cursor-pointer"
             >
               {isSubmitting
                 ? "Saving..."

@@ -36,6 +36,9 @@ describe("LocationStep Component", () => {
     fireEvent.change(screen.getByLabelText(/postal code/i), {
       target: { value: "416606" },
     });
+    fireEvent.change(screen.getByLabelText(/google maps url/i), {
+      target: { value: "https://maps.google.com/?q=123+Beach+Road" },
+    });
 
     const submitBtn = screen.getByRole("button", { name: /save & continue/i });
     fireEvent.click(submitBtn);
@@ -48,6 +51,7 @@ describe("LocationStep Component", () => {
           postal_code: "416606",
           state: "Maharashtra",
           country: "India",
+          google_map_url: "https://maps.google.com/?q=123+Beach+Road",
         })
       );
     });

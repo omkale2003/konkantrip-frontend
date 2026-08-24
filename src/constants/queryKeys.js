@@ -19,6 +19,12 @@ export const QUERY_KEYS = {
     IMAGES: (roomId) => ["rooms", roomId, "images"],
   },
 
+  PRICING: {
+    ALL: ["pricing"],
+    RATES: (filters) => ["pricing", "rates", filters],
+    RATE_DETAIL: (rateId) => ["pricing", "rates", "detail", rateId],
+  },
+
   LOOKUPS: {
     ROOMS: ["lookups", "rooms"],
     AMENITIES: ["lookups", "amenities"],

@@ -1,180 +1,208 @@
 import React from "react";
-import { Shield, Check, Lock } from "lucide-react";
+import { Shield, Lock, CheckCircle2, ShieldCheck, CheckSquare, Square } from "lucide-react";
 
-const STANDARD_OBJECTS = [
-  {
-    name: "Properties",
-    key: "properties",
-    description: "Property profiles, locations, media, policies & amenities",
-    perms: ["read", "create", "update", "delete", "view_all", "modify_all"],
+// Friendly module metadata mapping
+const MODULE_METADATA = {
+  properties: {
+    name: "Properties & Locations",
+    description: "Property master profiles, locations, media, policies & amenities",
   },
-  {
+  rooms: {
     name: "Rooms & Units",
-    key: "rooms",
     description: "Room types, inventory categories, base rates, amenities & beds",
-    perms: ["read", "create", "update", "delete", "view_all", "modify_all"],
   },
-  {
+  inventory: {
     name: "Inventory & Calendar",
-    key: "inventory",
     description: "Daily room counts, stop-sells, blockings & rate calendar",
-    perms: ["read", "create", "update", "delete", "view_all", "modify_all"],
   },
-  {
-    name: "Bookings & Guests",
-    key: "bookings",
-    description: "Reservations, check-ins, guest folios & status updates",
-    perms: ["read", "create", "update", "delete", "view_all", "modify_all"],
-  },
-  {
+  pricing: {
     name: "Pricing & Discounts",
-    key: "pricing",
     description: "Seasonal rates, promotional discount rules & price overrides",
-    perms: ["read", "create", "update", "delete", "view_all", "modify_all"],
   },
-  {
+  bookings: {
+    name: "Bookings & Front Desk",
+    description: "Reservations, check-ins, guest folios & status updates",
+  },
+  housekeeping: {
+    name: "Housekeeping",
+    description: "Room cleanliness, turn-down tasks & cleaning inspections",
+  },
+  maintenance: {
+    name: "Maintenance",
+    description: "Work orders, repair tickets & maintenance room blocks",
+  },
+  employees: {
     name: "Staff & CRM",
-    key: "employees",
     description: "Employee profiles, department roles, property assignments & sessions",
-    perms: ["read", "create", "update", "delete", "view_all", "modify_all"],
   },
-  {
+  roles: {
+    name: "Roles & RBAC",
+    description: "Role definitions, permissions & security access policies",
+  },
+  audit: {
     name: "Audit Trail & Governance",
-    key: "audit",
     description: "Activity logs, change histories, session inspections & compliance",
-    perms: ["read", "export", "view_all"],
   },
-];
+  reports: {
+    name: "Reports & Analytics",
+    description: "Occupancy metrics, revenue insights & operational reporting",
+  },
+  financials: {
+    name: "Financials & Billing",
+    description: "Invoices, payment transactions & financial statements",
+  },
+};
 
-export function SalesforceProfileMatrix({ selectedRole, permissions = [], onTogglePermission, isReadOnly = false }) {
-  const permSet = new Set(permissions || []);
+export function SalesforceProfileMatrix({
+  selectedRole = null,
+  availablePermissions = [],
+  selectedPermissionIds = [],
+  onTogglePermission,
+  onToggleModule,
+  isReadOnly = false,
+}) {
+  // If in read-only mode and a role is selected, extract its permission IDs or codes
+  const effectiveSelectedIds = React.useMemo(() => {
+    if (selectedPermissionIds && selectedPermissionIds.length > 0) {
+      return new Set(selectedPermissionIds.map((p) => (typeof p === "object" ? p.permission_id : Number(p))));
+    }
+    if (selectedRole?.permissions) {
+      return new Set(
+        selectedRole.permissions.map((p) => (typeof p === "object" ? p.permission_id : Number(p)))
+      );
+    }
+    return new Set();
+  }, [selectedPermissionIds, selectedRole]);
 
-  const hasPerm = (objKey, action) => {
-    if (permSet.has("*")) return true;
-    if (action === "view_all") return permSet.has(`${objKey}:read`) && permSet.has(`${objKey}:view_all`);
-    if (action === "modify_all") return permSet.has(`${objKey}:delete`) && permSet.has(`${objKey}:update`);
-    return permSet.has(`${objKey}:${action}`);
-  };
+  // Group real database permissions by module
+  const groupedModules = React.useMemo(() => {
+    const map = {};
+    for (const perm of availablePermissions) {
+      const mod = perm.module || "other";
+      if (!map[mod]) {
+        map[mod] = {
+          key: mod,
+          name: MODULE_METADATA[mod]?.name || mod.charAt(0).toUpperCase() + mod.slice(1),
+          description: MODULE_METADATA[mod]?.description || `Access and controls for ${mod} module`,
+          permissions: [],
+        };
+      }
+      map[mod].permissions.push(perm);
+    }
+    return Object.values(map);
+  }, [availablePermissions]);
+
+  const isSystemRole = Boolean(selectedRole?.is_system_role);
+  const isInteractive = !isReadOnly && !isSystemRole && typeof onTogglePermission === "function";
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-      <div className="p-5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+      {/* Header */}
+      <div className="p-5 border-b border-slate-100 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+          <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl">
             <Shield className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-800">
-              Salesforce-Style Profile & Object Permissions Matrix
+            <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+              Salesforce-Style Object & Profile Permissions Matrix
             </h3>
             <p className="text-xs text-slate-500">
-              Configured for profile: <span className="font-medium text-slate-700">{selectedRole?.role_name || "Custom Role"}</span>
+              Profile: <span className="font-semibold text-slate-700">{selectedRole?.role_name || "Custom Role"}</span>
+              {availablePermissions.length > 0 && (
+                <span className="ml-2 text-slate-400">({availablePermissions.length} total database permissions)</span>
+              )}
             </p>
           </div>
         </div>
-        {selectedRole?.is_system_role ? (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-semibold">
-            <Lock className="w-3.5 h-3.5" /> System Protected Profile
-          </span>
-        ) : null}
+
+        <div className="flex items-center gap-2">
+          {isSystemRole ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-xs font-semibold">
+              <Lock className="w-3.5 h-3.5" /> System Protected Profile
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5" /> Dynamic RBAC Profile
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-100/60 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
-              <th className="py-3 px-4 min-w-[220px]">Object / Module</th>
-              <th className="py-3 px-3 text-center">Read</th>
-              <th className="py-3 px-3 text-center">Create</th>
-              <th className="py-3 px-3 text-center">Edit</th>
-              <th className="py-3 px-3 text-center">Delete</th>
-              <th className="py-3 px-3 text-center text-blue-700 bg-blue-50/50">View All</th>
-              <th className="py-3 px-3 text-center text-indigo-700 bg-indigo-50/50">Modify All</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-sm">
-            {STANDARD_OBJECTS.map((obj) => (
-              <tr key={obj.key} className="hover:bg-slate-50/80 transition-colors">
-                <td className="py-3.5 px-4">
-                  <div className="font-medium text-slate-800">{obj.name}</div>
-                  <div className="text-xs text-slate-400 font-normal">{obj.description}</div>
-                </td>
+      {/* Permissions Grid */}
+      {groupedModules.length === 0 ? (
+        <div className="p-8 text-center text-xs text-slate-500">
+          Loading permissions catalog from database...
+        </div>
+      ) : (
+        <div className="divide-y divide-slate-100">
+          {groupedModules.map((mod) => {
+            const modulePermIds = mod.permissions.map((p) => p.permission_id);
+            const activeInModuleCount = modulePermIds.filter((id) => effectiveSelectedIds.has(id)).length;
+            const isAllSelected = modulePermIds.length > 0 && activeInModuleCount === modulePermIds.length;
 
-                {/* Read */}
-                <td className="py-3.5 px-3 text-center">
-                  <input
-                    type="checkbox"
-                    disabled={isReadOnly || selectedRole?.is_system_role}
-                    checked={hasPerm(obj.key, "read")}
-                    onChange={() => onTogglePermission && onTogglePermission(`${obj.key}:read`)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
-                  />
-                </td>
+            return (
+              <div key={mod.key} className="p-4 sm:p-5 hover:bg-slate-50/50 transition-colors">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-slate-800">{mod.name}</h4>
+                      <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                        {activeInModuleCount} / {mod.permissions.length} active
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">{mod.description}</p>
+                  </div>
 
-                {/* Create */}
-                <td className="py-3.5 px-3 text-center">
-                  <input
-                    type="checkbox"
-                    disabled={isReadOnly || selectedRole?.is_system_role}
-                    checked={hasPerm(obj.key, "create")}
-                    onChange={() => onTogglePermission && onTogglePermission(`${obj.key}:create`)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
-                  />
-                </td>
+                  {isInteractive && onToggleModule && (
+                    <button
+                      type="button"
+                      onClick={() => onToggleModule(mod.key)}
+                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition self-start sm:self-auto cursor-pointer"
+                    >
+                      {isAllSelected ? "Deselect Module" : "Select All Module"}
+                    </button>
+                  )}
+                </div>
 
-                {/* Edit */}
-                <td className="py-3.5 px-3 text-center">
-                  <input
-                    type="checkbox"
-                    disabled={isReadOnly || selectedRole?.is_system_role}
-                    checked={hasPerm(obj.key, "update")}
-                    onChange={() => onTogglePermission && onTogglePermission(`${obj.key}:update`)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
-                  />
-                </td>
+                {/* Granular Action Chips */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 mt-2">
+                  {mod.permissions.map((perm) => {
+                    const isChecked = effectiveSelectedIds.has(perm.permission_id);
 
-                {/* Delete */}
-                <td className="py-3.5 px-3 text-center">
-                  <input
-                    type="checkbox"
-                    disabled={isReadOnly || selectedRole?.is_system_role}
-                    checked={hasPerm(obj.key, "delete")}
-                    onChange={() => onTogglePermission && onTogglePermission(`${obj.key}:delete`)}
-                    className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 cursor-pointer disabled:opacity-50"
-                  />
-                </td>
-
-                {/* View All */}
-                <td className="py-3.5 px-3 text-center bg-blue-50/20">
-                  <input
-                    type="checkbox"
-                    disabled={isReadOnly || selectedRole?.is_system_role}
-                    checked={hasPerm(obj.key, "read")}
-                    onChange={() => onTogglePermission && onTogglePermission(`${obj.key}:read`)}
-                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
-                  />
-                </td>
-
-                {/* Modify All */}
-                <td className="py-3.5 px-3 text-center bg-indigo-50/20">
-                  <input
-                    type="checkbox"
-                    disabled={isReadOnly || selectedRole?.is_system_role}
-                    checked={hasPerm(obj.key, "update") && hasPerm(obj.key, "delete")}
-                    onChange={() => {
-                      if (onTogglePermission) {
-                        onTogglePermission(`${obj.key}:update`);
-                        onTogglePermission(`${obj.key}:delete`);
-                      }
-                    }}
-                    className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer disabled:opacity-50"
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    return (
+                      <label
+                        key={perm.permission_id}
+                        className={`flex items-start gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition select-none ${
+                          isChecked
+                            ? "bg-emerald-50/60 border-emerald-200 text-emerald-950 font-medium"
+                            : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                        } ${!isInteractive ? "cursor-default" : ""}`}
+                      >
+                        <input
+                          type="checkbox"
+                          disabled={!isInteractive}
+                          checked={isChecked}
+                          onChange={() => isInteractive && onTogglePermission(perm.permission_id)}
+                          className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 mt-0.5 shrink-0 cursor-pointer disabled:cursor-default"
+                        />
+                        <div className="min-w-0">
+                          <div className="font-semibold capitalize text-slate-800">
+                            {perm.action.replace(/_/g, " ")}
+                          </div>
+                          <div className="text-[11px] text-slate-500 line-clamp-1">
+                            {perm.description || perm.permission_code}
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

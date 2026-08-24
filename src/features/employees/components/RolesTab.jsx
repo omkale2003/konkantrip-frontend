@@ -5,10 +5,8 @@ import {
   Edit2,
   Trash2,
   Lock,
-  CheckCircle2,
-  AlertCircle,
-  Key,
 } from "lucide-react";
+import SalesforceProfileMatrix from "./SalesforceProfileMatrix.jsx";
 
 function RolesTab({
   roles = [],
@@ -37,7 +35,7 @@ function RolesTab({
         <button
           type="button"
           onClick={onCreateRole}
-          className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+          className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-800 cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           Create Custom Role
@@ -102,90 +100,37 @@ function RolesTab({
         </div>
 
         {/* Selected Role Permissions Detail */}
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-8 space-y-4">
           {activeRole ? (
-            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-6">
-              {/* Role Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-slate-900">
-                      {activeRole.role_name}
-                    </h3>
-                    {activeRole.is_system_role ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-                        <Lock className="h-3.5 w-3.5" />
-                        System Standard
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
-                        Custom Owner Role
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {activeRole.role_description || "No description provided."}
-                  </p>
+            <div className="space-y-4">
+              {/* Role Action Controls */}
+              {!activeRole.is_system_role && (
+                <div className="flex items-center justify-end gap-2 bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                  <button
+                    type="button"
+                    onClick={() => onEditRole(activeRole)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600 cursor-pointer"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" />
+                    Edit Role
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDeleteRole(activeRole)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 cursor-pointer"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete
+                  </button>
                 </div>
+              )}
 
-                {!activeRole.is_system_role && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onEditRole(activeRole)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600"
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                      Edit Role
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDeleteRole(activeRole)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Granted Permissions List */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Granted Permissions ({(activeRole.permissions || []).length})
-                  </h4>
-                  <span className="text-xs text-slate-500">
-                    Module-level capabilities granted to this role
-                  </span>
-                </div>
-
-                {(activeRole.permissions || []).length === 0 ? (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center text-xs text-slate-500">
-                    No explicit permissions attached to this role.
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                    {(activeRole.permissions || []).map((perm) => (
-                      <div
-                        key={perm.permission_id}
-                        className="flex items-start gap-2.5 rounded-lg border border-slate-200/80 bg-slate-50/50 p-2.5 text-xs"
-                      >
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-semibold text-slate-900 capitalize">
-                            {perm.action} {perm.module}
-                          </p>
-                          <p className="text-[11px] text-slate-500">
-                            {perm.description || perm.permission_code}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Dynamic Database-backed Salesforce Profile Matrix */}
+              <SalesforceProfileMatrix
+                selectedRole={activeRole}
+                availablePermissions={permissions}
+                isReadOnly={true}
+              />
             </div>
           ) : (
             <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500">

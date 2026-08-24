@@ -79,4 +79,28 @@ describe("ContactStep Component", () => {
       );
     });
   });
+
+  it("disables Manager option when a Manager contact already exists for the property", () => {
+    contactHooks.usePropertyContacts.mockReturnValue({
+      data: {
+        data: [
+          {
+            contact_id: 10,
+            contact_name: "Existing Manager",
+            contact_type_id: 1,
+            contact_type_name: "Manager",
+            is_primary: true,
+          },
+        ],
+      },
+      isLoading: false,
+    });
+
+    renderWithProviders(
+      <ContactStep propertyId={1} onSubmit={mockOnSubmit} onBack={mockOnBack} />
+    );
+
+    const managerOption = screen.getByRole("option", { name: /already assigned: existing manager/i });
+    expect(managerOption).toBeDisabled();
+  });
 });

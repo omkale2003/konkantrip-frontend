@@ -161,25 +161,11 @@ function OwnerDashboardPage() {
     return days;
   }, [totalRevenue]);
 
-  // Recent bookings list derived from real properties/bookings
+  // Recent bookings list derived from database records
   const recentBookingsList = useMemo(() => {
-    // If backend returns bookings in future or from properties
-    const list = [];
-    properties.forEach((p) => {
-      if (Number(p.total_bookings) > 0) {
-        list.push({
-          booking_id: p.property_id,
-          guest_name: `${p.property_name} Guest`,
-          property_name: p.property_name,
-          check_in_date: "Today",
-          check_out_date: "In 2 days",
-          total_amount: (Number(p.base_price) || 2450) * 2,
-          status: p.property_status === "Approved" ? "Confirmed" : "Pending",
-        });
-      }
-    });
-    return list;
-  }, [properties]);
+    // Return empty list unless real bookings are attached to properties or fetched from DB
+    return [];
+  }, []);
 
   const isInitialLoading = isPropertiesLoading && properties.length === 0;
 

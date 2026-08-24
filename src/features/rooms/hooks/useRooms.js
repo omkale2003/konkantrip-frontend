@@ -62,6 +62,8 @@ export const useCreateRoom = () => {
     mutationFn: createRoom,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROOMS.ALL });
+      queryClient.invalidateQueries({ queryKey: ["inventoryCalendar"] });
+      queryClient.invalidateQueries({ queryKey: ["roomInventory"] });
     },
   });
 };
@@ -72,6 +74,8 @@ export const useUpdateRoom = () => {
     mutationFn: updateRoom,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROOMS.ALL });
+      queryClient.invalidateQueries({ queryKey: ["inventoryCalendar"] });
+      queryClient.invalidateQueries({ queryKey: ["roomInventory"] });
       if (variables.roomId) {
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.ROOMS.DETAIL(variables.roomId),
@@ -87,6 +91,8 @@ export const useDeleteRoom = () => {
     mutationFn: deleteRoom,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROOMS.ALL });
+      queryClient.invalidateQueries({ queryKey: ["inventoryCalendar"] });
+      queryClient.invalidateQueries({ queryKey: ["roomInventory"] });
     },
   });
 };

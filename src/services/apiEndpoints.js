@@ -49,7 +49,18 @@ export const API_ENDPOINTS = {
     FACILITY_DETAIL: (roomId, facilityId) =>
       `/rooms/facilities/${roomId}/${facilityId}`,
     RATES: (roomId) => `/rooms/rates/${roomId}`,
+    ALL_RATES: "/rooms/rates/all",
     RATE_DETAIL: (roomId, rateId) => `/rooms/rates/${roomId}/${rateId}`,
+    BULK_PRICING_UPDATE: "/rooms/rates/bulk-update",
+    BULK_SEASONAL_RATES: "/rooms/rates/bulk-seasonal-rates",
+  },
+
+  PRICING: {
+    RATES: (roomId) => `/rooms/rates/${roomId}`,
+    ALL_RATES: "/rooms/rates/all",
+    RATE_DETAIL: (roomId, rateId) => `/rooms/rates/${roomId}/${rateId}`,
+    BULK_UPDATE: "/rooms/rates/bulk-update",
+    BULK_SEASONAL: "/rooms/rates/bulk-seasonal-rates",
   },
 
   INVENTORY: {

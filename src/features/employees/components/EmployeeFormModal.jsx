@@ -89,6 +89,11 @@ function EmployeeFormModal({
 
   const selectedProperties = watch("assigned_property_ids") || [];
   const primaryPropertyId = watch("primary_property_id");
+  const selectedRoleId = watch("role_id");
+  const selectedRole = roles.find((r) => String(r.role_id) === String(selectedRoleId));
+  const isPropertyManagerRole =
+    selectedRole?.role_slug === "property-manager" ||
+    selectedRole?.role_name?.toLowerCase().includes("property manager");
 
   useEffect(() => {
     if (isOpen) {
@@ -464,12 +469,21 @@ function EmployeeFormModal({
           <div className="space-y-4 border-t border-slate-100 pt-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                3. Property Assignments
+                3. Property Access & Assignments
               </h3>
-              <span className="text-xs text-slate-500">
+              <span className="text-[11px] text-slate-400">
                 Select properties this staff member manages
               </span>
             </div>
+
+            {isPropertyManagerRole && (
+              <div className="rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-xs text-amber-800 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
+                <span>
+                  <strong>Single Manager Rule:</strong> Each property can only have one assigned Property Manager.
+                </span>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {properties.map((prop) => {
