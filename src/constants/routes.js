@@ -9,6 +9,7 @@ export const ROUTES = {
   OWNER_ROOMS: "/owner/rooms",
   OWNER_EMPLOYEES: "/owner/employees",
   OWNER_BOOKINGS: "/owner/bookings",
+  OWNER_ENQUIRIES: "/owner/enquiries",
   OWNER_AVAILABILITY: "/owner/availability",
   OWNER_INVENTORY: "/owner/inventory",
   OWNER_INVENTORY_SETUP: "/owner/inventory/setup",

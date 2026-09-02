@@ -31,6 +31,7 @@ import AddRoomPage from "../features/rooms/pages/AddRoomPage.jsx";
 import EditRoomPage from "../features/rooms/pages/EditRoomPage.jsx";
 import EmployeesPage from "../features/employees/pages/EmployeesPage.jsx";
 import BookingsPage from "../features/owner/pages/BookingsPage.jsx";
+import EnquiriesPage from "../features/owner/pages/EnquiriesPage.jsx";
 import AvailabilityPage from "../features/owner/pages/AvailabilityPage.jsx";
 import InventoryCalendarPage from "../features/inventory/pages/InventoryCalendarPage.jsx";
 import InventorySetupPage from "../features/inventory/pages/InventorySetupPage.jsx";
@@ -116,6 +117,11 @@ const router = createBrowserRouter([
           {
             path: ROUTES.OWNER_BOOKINGS,
             element: <BookingsPage />,
+          },
+
+          {
+            path: ROUTES.OWNER_ENQUIRIES,
+            element: <EnquiriesPage />,
           },
 
           {

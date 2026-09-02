@@ -6,6 +6,7 @@ import {
   CreditCard,
   Home,
   LayoutGrid,
+  MessageCircleQuestion,
   MessageSquare,
   Settings,
   Tag,
@@ -44,6 +45,12 @@ const allNavigationItems = [
     path: "/owner/bookings",
     icon: CalendarDays,
     permission: "bookings:read",
+  },
+  {
+    label: "Enquiries",
+    path: "/owner/enquiries",
+    icon: MessageCircleQuestion,
+    permission: "properties:read",
   },
   {
     label: "Inventory",
