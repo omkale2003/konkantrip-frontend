@@ -38,3 +38,10 @@ dist-ssr
 # Test coverage
 coverage/
 .nyc_output/
+
+# Optional: WhatsApp Enquiry Simulator Demo (uncomment to keep untracked in git)
+# src/pages/WhatsAppSimulator.jsx
+# src/components/whatsapp/
+# src/data/whatsappDemoData.js
+# src/services/whatsappMockService.js
+# src/config/simulatorConfig.js

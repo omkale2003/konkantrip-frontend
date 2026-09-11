@@ -8,7 +8,7 @@ function App() {
         <h1 className="mb-2 text-4xl font-bold text-slate-900">KonkanTrip&trade;</h1>
         <p className="mb-8 text-lg text-slate-600">Property Owner Portal</p>
         
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <Link 
             to={ROUTES.LOGIN}
             className="rounded-lg bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 shadow-sm"
@@ -20,6 +20,12 @@ function App() {
             className="rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 shadow-sm"
           >
             Register
+          </Link>
+          <Link 
+            to={ROUTES.WHATSAPP_SIMULATOR}
+            className="rounded-lg border border-emerald-300 bg-emerald-50 px-6 py-2.5 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 shadow-sm flex items-center gap-1.5"
+          >
+            <span>WhatsApp Simulator Demo</span>
           </Link>
         </div>
       </div>

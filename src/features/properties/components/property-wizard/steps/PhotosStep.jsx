@@ -18,6 +18,7 @@ import {
   useUpdatePropertyImage,
 } from "../../../hooks/usePropertyImages.js";
 import { getImageUrl, handleImageError, DEFAULT_PROPERTY_IMAGE } from "../../../../../utils/imageUrl.js";
+import { compressImage } from "../../../../../utils/imageCompressor.js";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -69,26 +70,30 @@ function PhotosStep({
   const updateImageMutation = useUpdatePropertyImage(propertyId);
   const deleteImageMutation = useDeletePropertyImage(propertyId);
 
-  const handleFileSelect = (files) => {
+  const handleFileSelect = async (files) => {
     setFileError("");
     const validFiles = [];
 
-    for (const file of Array.from(files)) {
-      if (!ACCEPTED_TYPES.includes(file.type.toLowerCase())) {
+    for (const rawFile of Array.from(files)) {
+      if (!ACCEPTED_TYPES.includes(rawFile.type.toLowerCase())) {
         setFileError("Unsupported image format. Please select JPG, PNG, or WEBP files.");
         continue;
       }
-      if (file.size > MAX_FILE_SIZE) {
-        setFileError(`"${file.name}" is too large. Maximum size is 10MB.`);
+      if (rawFile.size > MAX_FILE_SIZE) {
+        setFileError(`"${rawFile.name}" is too large. Maximum size is 10MB.`);
         continue;
       }
 
+      // Automatically compress image in browser to optimize upload speed and quality
+      const file = await compressImage(rawFile);
       const previewUrl = URL.createObjectURL(file);
       validFiles.push({
         id: `${file.name}-${Date.now()}-${Math.random()}`,
         file,
         name: file.name,
         size: file.size,
+        originalSize: file.originalSize || rawFile.size,
+        savedPercent: file.savedPercent || 0,
         type: file.type,
         previewUrl,
         image_title: file.name,
@@ -364,9 +369,14 @@ function PhotosStep({
                     placeholder="Alt Text"
                     className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {formatBytes(item.size)}
-                  </p>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 mt-0.5">
+                    <span>{formatBytes(item.size)}</span>
+                    {item.savedPercent > 0 && (
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200/60 font-semibold px-1 py-0.2 rounded" title={`Original: ${formatBytes(item.originalSize)}`}>
+                        -{item.savedPercent}%
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

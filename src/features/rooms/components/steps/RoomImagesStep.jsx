@@ -8,6 +8,7 @@ import {
   useRoomLookups,
 } from "../../hooks/useRooms.js";
 import { getImageUrl, handleImageError, DEFAULT_ROOM_IMAGE } from "../../../../utils/imageUrl.js";
+import { compressImage } from "../../../../utils/imageCompressor.js";
 
 function RoomImagesStep({ roomId, onSubmitNext }) {
   const { data: imagesData, isLoading: isLoadingImages } = useRoomImages(roomId);
@@ -26,20 +27,22 @@ function RoomImagesStep({ roomId, onSubmitNext }) {
   const images = imagesData?.data || [];
   const imageTypes = imageTypesData?.data || [];
 
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFileSelect = async (e) => {
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
 
-    if (!file.type.startsWith("image/")) {
+    if (!rawFile.type.startsWith("image/")) {
       setErrorMsg("Please select a valid image file.");
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setErrorMsg("Image size must be less than 5MB.");
+    if (rawFile.size > 15 * 1024 * 1024) {
+      setErrorMsg("Image size must be less than 15MB.");
       return;
     }
 
+    // Automatically compress image in browser
+    const file = await compressImage(rawFile);
     setSelectedFile(file);
     setImagePreview(URL.createObjectURL(file));
     setErrorMsg("");
