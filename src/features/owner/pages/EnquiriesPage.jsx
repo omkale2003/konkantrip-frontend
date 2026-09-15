@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   MessageCircleQuestion,
   Search,
@@ -18,70 +18,7 @@ import {
   Plus,
   RefreshCw,
 } from "lucide-react";
-
-// Mock initial enquiries data for demo & owner interaction
-const initialMockEnquiries = [
-  {
-    enquiry_id: 1,
-    guest_name: "Rahul Sawant",
-    guest_mobile: "+919820123456",
-    guest_email: "rahul.sawant@example.com",
-    property_name: "Blue Ocean Sea View Resort",
-    room_name: "Deluxe Ocean Front Villa",
-    check_in_date: "2026-09-15",
-    check_out_date: "2026-09-18",
-    guests_count: 4,
-    message: "Hi, we are planning a family trip for 4 adults and 1 toddler. Is extra mattress and beachside bonfire available?",
-    status: "New",
-    notes: "Needs confirmation regarding baby cot and dinner package.",
-    created_at: "2026-08-31T14:30:00Z"
-  },
-  {
-    enquiry_id: 2,
-    guest_name: "Pooja Hegde",
-    guest_mobile: "+919819876543",
-    guest_email: "pooja.h@example.com",
-    property_name: "Konkan Heritage Homestay",
-    room_name: "Standard Heritage Room",
-    check_in_date: "2026-09-20",
-    check_out_date: "2026-09-22",
-    guests_count: 2,
-    message: "Looking for authentic Malvani seafood lunch and check-in around 11:00 AM. Can we get early check-in?",
-    status: "Responded",
-    notes: "WhatsApp message sent confirming early check-in availability.",
-    created_at: "2026-08-31T11:15:00Z"
-  },
-  {
-    enquiry_id: 3,
-    guest_name: "Vikram Mehta",
-    guest_mobile: "+919833445566",
-    guest_email: "vikram.m@example.com",
-    property_name: "Blue Ocean Sea View Resort",
-    room_name: "Luxury Suite",
-    check_in_date: "2026-10-02",
-    check_out_date: "2026-10-05",
-    guests_count: 6,
-    message: "Corporate weekend retreat. We need 3 rooms with high-speed WiFi for work calls. Please share group discount rates.",
-    status: "Converted",
-    notes: "Converted to Booking #KT-20261002-CORP.",
-    created_at: "2026-08-30T16:45:00Z"
-  },
-  {
-    enquiry_id: 4,
-    guest_name: "Ananya Joshi",
-    guest_mobile: "+919765432109",
-    guest_email: "ananya.joshi@example.com",
-    property_name: "Devbagh Beach Shack & Villa",
-    room_name: "Beachfront Wooden Cottage",
-    check_in_date: "2026-09-12",
-    check_out_date: "2026-09-14",
-    guests_count: 2,
-    message: "Is pet dog allowed on the beach premises and cottage room?",
-    status: "Closed",
-    notes: "Guest notified of pet policy.",
-    created_at: "2026-08-29T10:00:00Z"
-  }
-];
+import { ownerEnquiriesApi } from "../api/enquiries.api";
 
 function getStatusBadge(status) {
   switch (status) {
@@ -99,20 +36,44 @@ function getStatusBadge(status) {
 }
 
 function EnquiriesPage() {
-  const [enquiries, setEnquiries] = useState(initialMockEnquiries);
+  const [enquiries, setEnquiries] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [newNote, setNewNote] = useState("");
 
+  const fetchEnquiries = async () => {
+    setIsLoading(true);
+    try {
+      const res = await ownerEnquiriesApi.getEnquiries({ limit: 100 });
+      setEnquiries(res?.data || []);
+      // If selected enquiry exists, update it to matched fresh data
+      if (selectedEnquiry) {
+        const fresh = (res?.data || []).find(e => e.enquiry_id === selectedEnquiry.enquiry_id);
+        if (fresh) setSelectedEnquiry(fresh);
+      }
+    } catch (err) {
+      console.error("Failed to fetch enquiries:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEnquiries();
+  }, []);
+
   const filteredEnquiries = useMemo(() => {
     return enquiries.filter((item) => {
       const matchesStatus = statusFilter === "All" || item.status === statusFilter;
+      const termLower = searchTerm.toLowerCase();
       const matchesSearch =
-        item.guest_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.guest_name.toLowerCase().includes(termLower) ||
         item.guest_mobile.includes(searchTerm) ||
-        item.property_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.message.toLowerCase().includes(searchTerm.toLowerCase());
+        (item.property_name && item.property_name.toLowerCase().includes(termLower)) ||
+        (item.message && item.message.toLowerCase().includes(termLower));
       return matchesStatus && matchesSearch;
     });
   }, [enquiries, searchTerm, statusFilter]);
@@ -126,26 +87,46 @@ function EnquiriesPage() {
     };
   }, [enquiries]);
 
-  const handleUpdateStatus = (id, newStatus) => {
-    setEnquiries((prev) =>
-      prev.map((e) => (e.enquiry_id === id ? { ...e, status: newStatus } : e))
-    );
-    if (selectedEnquiry && selectedEnquiry.enquiry_id === id) {
-      setSelectedEnquiry((prev) => ({ ...prev, status: newStatus }));
+  const handleUpdateStatus = async (id, newStatus) => {
+    if (isUpdating) return;
+    try {
+      setIsUpdating(true);
+      await ownerEnquiriesApi.updateEnquiryStatus(id, { status: newStatus });
+      setEnquiries((prev) =>
+        prev.map((e) => (e.enquiry_id === id ? { ...e, status: newStatus } : e))
+      );
+      if (selectedEnquiry && selectedEnquiry.enquiry_id === id) {
+        setSelectedEnquiry((prev) => ({ ...prev, status: newStatus }));
+      }
+    } catch (err) {
+      console.error("Failed to update status", err);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const handleSaveNote = () => {
-    if (!selectedEnquiry || !newNote.trim()) return;
-    setEnquiries((prev) =>
-      prev.map((e) =>
-        e.enquiry_id === selectedEnquiry.enquiry_id
-          ? { ...e, notes: newNote }
-          : e
-      )
-    );
-    setSelectedEnquiry((prev) => ({ ...prev, notes: newNote }));
-    setNewNote("");
+  const handleSaveNote = async () => {
+    if (!selectedEnquiry || !newNote.trim() || isUpdating) return;
+    try {
+      setIsUpdating(true);
+      await ownerEnquiriesApi.updateEnquiryStatus(selectedEnquiry.enquiry_id, {
+        status: selectedEnquiry.status,
+        notes: newNote
+      });
+      setEnquiries((prev) =>
+        prev.map((e) =>
+          e.enquiry_id === selectedEnquiry.enquiry_id
+            ? { ...e, notes: newNote }
+            : e
+        )
+      );
+      setSelectedEnquiry((prev) => ({ ...prev, notes: newNote }));
+      setNewNote("");
+    } catch (err) {
+      console.error("Failed to save note", err);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -245,11 +226,10 @@ function EnquiriesPage() {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition whitespace-nowrap ${
-                statusFilter === status
+              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition whitespace-nowrap ${statusFilter === status
                   ? "bg-emerald-700 text-white shadow-xs"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200/70"
-              }`}
+                }`}
             >
               {status}
             </button>
@@ -277,11 +257,10 @@ function EnquiriesPage() {
                   setSelectedEnquiry(item);
                   setNewNote(item.notes || "");
                 }}
-                className={`cursor-pointer rounded-2xl border p-5 transition shadow-xs hover:shadow-sm ${
-                  selectedEnquiry?.enquiry_id === item.enquiry_id
+                className={`cursor-pointer rounded-2xl border p-5 transition shadow-xs hover:shadow-sm ${selectedEnquiry?.enquiry_id === item.enquiry_id
                     ? "border-emerald-500 bg-emerald-50/20 ring-1 ring-emerald-500"
                     : "border-slate-200/80 bg-white hover:border-slate-300"
-                }`}
+                  }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -397,11 +376,10 @@ function EnquiriesPage() {
                     <button
                       key={st}
                       onClick={() => handleUpdateStatus(selectedEnquiry.enquiry_id, st)}
-                      className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold text-center transition ${
-                        selectedEnquiry.status === st
+                      className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold text-center transition ${selectedEnquiry.status === st
                           ? "border-emerald-600 bg-emerald-700 text-white font-bold"
                           : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                      }`}
+                        }`}
                     >
                       {st}
                     </button>

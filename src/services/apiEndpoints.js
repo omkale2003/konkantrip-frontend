@@ -10,6 +10,17 @@ export const API_ENDPOINTS = {
     EMPLOYEE_UPDATE_PASSWORD: "/auth/employee/update-password",
   },
 
+  BOOKINGS: {
+    LIST: "/bookings",
+    DETAIL: (id) => `/bookings/${id}`,
+    STATUS: (id) => `/bookings/${id}/status`,
+  },
+
+  ENQUIRIES: {
+    LIST: "/enquiries",
+    STATUS: (id) => `/enquiries/${id}/status`,
+  },
+
   PROFILE: "/profile",
 
   PROPERTIES: {

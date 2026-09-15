@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   CalendarDays,
   Search,
@@ -21,145 +21,7 @@ import {
   BedDouble,
   FileText,
 } from "lucide-react";
-
-// Mock rich initial OTA bookings for demonstration & owner management
-const initialMockBookings = [
-  {
-    booking_id: 1,
-    booking_uuid: "b101-789a-4cde-b231-102938475612",
-    booking_number: "KT-20260901-A1B2",
-    property_name: "Blue Ocean Sea View Resort",
-    room_name: "Deluxe Ocean Front Villa",
-    guest_name: "Aarav Sharma",
-    guest_mobile: "+919876543210",
-    guest_email: "aarav.sharma@example.com",
-    check_in_date: "2026-09-05",
-    check_out_date: "2026-09-08",
-    total_nights: 3,
-    total_guests: 2,
-    adults: 2,
-    children: 0,
-    total_room_price: 10500,
-    final_amount: 10500,
-    booking_status: "CONFIRMED",
-    payment_status: "Paid_At_Property",
-    special_requests: "High-floor room with beach view preferred.",
-    created_at: "2026-08-31T09:15:00Z",
-    property_contact: {
-      contact_name: "Ganesh Patil",
-      contact_phone: "+919822334455",
-      contact_role: "Front Desk Manager"
-    }
-  },
-  {
-    booking_id: 2,
-    booking_uuid: "b102-456b-8cde-a123-998877665544",
-    booking_number: "KT-20260902-C3D4",
-    property_name: "Konkan Heritage Homestay",
-    room_name: "Traditional Courtyard Room",
-    guest_name: "Sneha Kulkarni",
-    guest_mobile: "+919820556677",
-    guest_email: "sneha.k@example.com",
-    check_in_date: "2026-09-06",
-    check_out_date: "2026-09-07",
-    total_nights: 1,
-    total_guests: 3,
-    adults: 2,
-    children: 1,
-    total_room_price: 3200,
-    final_amount: 3200,
-    booking_status: "CONFIRMED",
-    payment_status: "Paid_At_Property",
-    special_requests: "Early check-in around 11:30 AM requested.",
-    created_at: "2026-08-30T15:20:00Z",
-    property_contact: {
-      contact_name: "Suresh Kadam",
-      contact_phone: "+919869112233",
-      contact_role: "Reservation Desk"
-    }
-  },
-  {
-    booking_id: 3,
-    booking_uuid: "b103-123c-9ef0-b456-112233445566",
-    booking_number: "KT-20260903-E5F6",
-    property_name: "Devbagh Beach Shack & Villa",
-    room_name: "Beachfront Wooden Cottage",
-    guest_name: "Prasad Deshpande",
-    guest_mobile: "+919811223344",
-    guest_email: "prasad.d@example.com",
-    check_in_date: "2026-09-10",
-    check_out_date: "2026-09-13",
-    total_nights: 3,
-    total_guests: 4,
-    adults: 4,
-    children: 0,
-    total_room_price: 14400,
-    final_amount: 14400,
-    booking_status: "CONFIRMED",
-    payment_status: "Paid_At_Property",
-    special_requests: "Need water sports coordination details on arrival.",
-    created_at: "2026-08-29T18:40:00Z",
-    property_contact: {
-      contact_name: "Mahesh Tandel",
-      contact_phone: "+919823445566",
-      contact_role: "Property Manager"
-    }
-  },
-  {
-    booking_id: 4,
-    booking_uuid: "b104-987d-1ab2-c789-556677889900",
-    booking_number: "KT-20260904-G7H8",
-    property_name: "Blue Ocean Sea View Resort",
-    room_name: "Standard Suite",
-    guest_name: "Rohan Varma",
-    guest_mobile: "+919765001122",
-    guest_email: "rohan.v@example.com",
-    check_in_date: "2026-08-25",
-    check_out_date: "2026-08-27",
-    total_nights: 2,
-    total_guests: 2,
-    adults: 2,
-    children: 0,
-    total_room_price: 6800,
-    final_amount: 6800,
-    booking_status: "COMPLETED",
-    payment_status: "Paid",
-    special_requests: null,
-    created_at: "2026-08-24T12:10:00Z",
-    property_contact: {
-      contact_name: "Ganesh Patil",
-      contact_phone: "+919822334455",
-      contact_role: "Front Desk Manager"
-    }
-  },
-  {
-    booking_id: 5,
-    booking_uuid: "b105-654e-3cd4-d012-990011223344",
-    booking_number: "KT-20260905-I9J0",
-    property_name: "Konkan Heritage Homestay",
-    room_name: "Deluxe Family Suite",
-    guest_name: "Aditi Joshi",
-    guest_mobile: "+919890123456",
-    guest_email: "aditi.j@example.com",
-    check_in_date: "2026-09-02",
-    check_out_date: "2026-09-04",
-    total_nights: 2,
-    total_guests: 4,
-    adults: 3,
-    children: 1,
-    total_room_price: 7600,
-    final_amount: 7600,
-    booking_status: "CANCELLED",
-    payment_status: "Refunded",
-    special_requests: "Cancelled due to personal emergency. Inventory released.",
-    created_at: "2026-08-26T16:00:00Z",
-    property_contact: {
-      contact_name: "Suresh Kadam",
-      contact_phone: "+919869112233",
-      contact_role: "Reservation Desk"
-    }
-  }
-];
+import { ownerBookingsApi } from "../api/bookings.api";
 
 function getStatusBadge(status) {
   switch (status) {
@@ -179,20 +41,43 @@ function getStatusBadge(status) {
 }
 
 function BookingsPage() {
-  const [bookings, setBookings] = useState(initialMockBookings);
+  const [bookings, setBookings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedBooking, setSelectedBooking] = useState(null);
 
+  const fetchBookings = async () => {
+    setIsLoading(true);
+    try {
+      const res = await ownerBookingsApi.getBookings({ limit: 100 });
+      setBookings(res?.data || []);
+      if (selectedBooking) {
+        const fresh = (res?.data || []).find(b => b.booking_id === selectedBooking.booking_id);
+        if (fresh) setSelectedBooking(fresh);
+      }
+    } catch (err) {
+      console.error("Failed to fetch bookings:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
   const filteredBookings = useMemo(() => {
     return bookings.filter((b) => {
       const matchesStatus = statusFilter === "All" || b.booking_status === statusFilter;
+      const termLower = searchTerm.toLowerCase();
       const matchesSearch =
-        b.booking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.guest_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.guest_mobile.includes(searchTerm) ||
-        b.property_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.room_name.toLowerCase().includes(searchTerm.toLowerCase());
+        (b.booking_number && b.booking_number.toLowerCase().includes(termLower)) ||
+        (b.guest_name && b.guest_name.toLowerCase().includes(termLower)) ||
+        (b.guest_mobile && b.guest_mobile.includes(searchTerm)) ||
+        (b.property_name && b.property_name.toLowerCase().includes(termLower)) ||
+        (b.room_name && b.room_name.toLowerCase().includes(termLower));
       return matchesStatus && matchesSearch;
     });
   }, [bookings, searchTerm, statusFilter]);
@@ -207,12 +92,21 @@ function BookingsPage() {
     return { total, confirmed, completed, revenue };
   }, [bookings]);
 
-  const handleUpdateStatus = (bookingId, newStatus) => {
-    setBookings((prev) =>
-      prev.map((b) => (b.booking_id === bookingId ? { ...b, booking_status: newStatus } : b))
-    );
-    if (selectedBooking && selectedBooking.booking_id === bookingId) {
-      setSelectedBooking((prev) => ({ ...prev, booking_status: newStatus }));
+  const handleUpdateStatus = async (bookingId, newStatus) => {
+    if (isUpdating) return;
+    try {
+      setIsUpdating(true);
+      await ownerBookingsApi.updateBookingStatus(bookingId, newStatus);
+      setBookings((prev) =>
+        prev.map((b) => (b.booking_id === bookingId ? { ...b, booking_status: newStatus } : b))
+      );
+      if (selectedBooking && selectedBooking.booking_id === bookingId) {
+        setSelectedBooking((prev) => ({ ...prev, booking_status: newStatus }));
+      }
+    } catch (err) {
+      console.error("Failed to update booking status", err);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -313,11 +207,10 @@ function BookingsPage() {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition whitespace-nowrap ${
-                statusFilter === status
+              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition whitespace-nowrap ${statusFilter === status
                   ? "bg-emerald-700 text-white shadow-xs"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200/70"
-              }`}
+                }`}
             >
               {status}
             </button>
@@ -506,11 +399,10 @@ function BookingsPage() {
                   <button
                     key={st}
                     onClick={() => handleUpdateStatus(selectedBooking.booking_id, st)}
-                    className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                      selectedBooking.booking_status === st
+                    className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${selectedBooking.booking_status === st
                         ? "bg-slate-900 text-white shadow-xs"
                         : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                    }`}
+                      }`}
                   >
                     {st}
                   </button>
