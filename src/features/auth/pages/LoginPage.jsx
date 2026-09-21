@@ -12,6 +12,8 @@ import storageService from "../../../services/storage.service.js";
 
 import { useLogin } from "../hooks/useLogin.js";
 import { useEmployeeLogin } from "../hooks/useEmployeeLogin.js";
+import { useRequestLoginOtp } from "../hooks/useRequestLoginOtp.js";
+import { useLoginWithOtp } from "../hooks/useLoginWithOtp.js";
 import { loginSchema } from "../schemas/auth.schema.js";
 
 function LoginPage() {
@@ -24,6 +26,12 @@ function LoginPage() {
 
   const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // OTP State
+  const [loginMethod, setLoginMethod] = useState("password"); // "password" | "otp"
+  const [otpStep, setOtpStep] = useState(1);
+  const [otpEmail, setOtpEmail] = useState("");
+  const [otpValue, setOtpValue] = useState("");
 
   const savedEmail = typeof window !== "undefined" ? localStorage.getItem("remembered_owner_email") || "" : "";
 
@@ -49,8 +57,28 @@ function LoginPage() {
 
   const ownerLoginMutation = useLogin();
   const employeeLoginMutation = useEmployeeLogin();
+  const requestOtpMutation = useRequestLoginOtp();
+  const loginOtpMutation = useLoginWithOtp();
 
-  const isSubmitting = ownerLoginMutation.isPending || employeeLoginMutation.isPending;
+  const isSubmitting = ownerLoginMutation.isPending || employeeLoginMutation.isPending || requestOtpMutation.isPending || loginOtpMutation.isPending;
+
+  const handleOwnerSuccess = (data, isRememberMe, emailToRemember) => {
+    if (!data?.token || !data?.user) {
+      setServerError("Login response is missing authentication data.");
+      return;
+    }
+
+    if (isRememberMe) {
+      localStorage.setItem("remembered_owner_email", emailToRemember);
+    } else {
+      localStorage.removeItem("remembered_owner_email");
+    }
+
+    tokenService.setToken(data.token);
+    storageService.setOwner(data.user);
+
+    navigate("/owner/dashboard", { replace: true });
+  };
 
   const onSubmit = (formData) => {
     setServerError("");
@@ -58,21 +86,7 @@ function LoginPage() {
     if (authPortal === "owner") {
       ownerLoginMutation.mutate(formData, {
         onSuccess: (data) => {
-          if (!data?.token || !data?.user) {
-            setServerError("Login response is missing authentication data.");
-            return;
-          }
-
-          if (formData.remember_me) {
-            localStorage.setItem("remembered_owner_email", formData.email);
-          } else {
-            localStorage.removeItem("remembered_owner_email");
-          }
-
-          tokenService.setToken(data.token);
-          storageService.setOwner(data.user);
-
-          navigate("/owner/dashboard", { replace: true });
+          handleOwnerSuccess(data, formData.remember_me, formData.email);
         },
         onError: (error) => {
           const message = error?.response?.data?.message || "Unable to login as property owner. Please verify credentials.";
@@ -108,6 +122,45 @@ function LoginPage() {
     }
   };
 
+  const onRequestOtpAndContinue = (e) => {
+    e.preventDefault();
+    if (!otpEmail) {
+      setServerError("Please enter a valid email or phone number");
+      return;
+    }
+    setServerError("");
+
+    requestOtpMutation.mutate(
+      { email: otpEmail },
+      {
+        onSuccess: () => {
+          setOtpStep(2);
+        },
+        onError: (error) => {
+          setServerError(error?.response?.data?.message || "Failed to send OTP.");
+        },
+      }
+    );
+  };
+
+  const onVerifyOtpSubmit = (e) => {
+    e.preventDefault();
+    if (otpValue.length < 5) return;
+    setServerError("");
+
+    loginOtpMutation.mutate(
+      { email: otpEmail, otp: otpValue, remember_me: false }, // Remember me is default false for OTP for simplicity, unless we add a UI
+      {
+        onSuccess: (data) => {
+          handleOwnerSuccess(data, false, otpEmail);
+        },
+        onError: (error) => {
+          setServerError(error?.response?.data?.message || "Invalid or expired OTP.");
+        },
+      }
+    );
+  };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
       <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -136,11 +189,10 @@ function LoginPage() {
               setServerError("");
               setAuthPortal("owner");
             }}
-            className={`flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold transition ${
-              authPortal === "owner"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
+            className={`flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold transition ${authPortal === "owner"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-900"
+              }`}
           >
             <Building2 className="h-4 w-4 text-emerald-700" />
             Property Owner
@@ -152,11 +204,10 @@ function LoginPage() {
               setServerError("");
               setAuthPortal("employee");
             }}
-            className={`flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold transition ${
-              authPortal === "employee"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-900"
-            }`}
+            className={`flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold transition ${authPortal === "employee"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-900"
+              }`}
           >
             <UserCheck className="h-4 w-4 text-emerald-700" />
             Staff / Employee
@@ -191,70 +242,171 @@ function LoginPage() {
           </div>
         )}
 
-        {/* Login Form */}
-        <form
-          className="flex flex-col gap-5"
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-        >
-          <Input
-            id="email"
-            label={authPortal === "owner" ? "Owner email address" : "Staff email address"}
-            type="email"
-            placeholder={authPortal === "owner" ? "owner@example.com" : "staff@example.com"}
-            autoComplete="email"
-            required
-            error={errors.email?.message}
-            {...register("email")}
-          />
-
-          <Input
-            id="password"
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter your password"
-            autoComplete="current-password"
-            required
-            error={errors.password?.message}
-            {...register("password")}
-            rightElement={
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="hover:text-slate-600 focus:outline-none"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            }
-          />
-
-          {/* Remember me Checkbox */}
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer select-none">
-              <input
-                id="remember_me"
-                type="checkbox"
-                className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                {...register("remember_me")}
-              />
-              <span>Remember me for 30 days</span>
-            </label>
-          </div>
-
-          <Button
-            type="submit"
-            size="lg"
-            fullWidth
-            disabled={isSubmitting}
+        {/* Dynamic Form Rendering */}
+        {authPortal === "employee" || loginMethod === "password" ? (
+          <form
+            className="flex flex-col gap-5"
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
           >
-            {isSubmitting
-              ? "Authenticating..."
-              : authPortal === "owner"
-              ? "Sign in as Owner"
-              : "Sign in as Staff"}
-          </Button>
-        </form>
+            <Input
+              id="email"
+              label={authPortal === "owner" ? "Owner email address" : "Staff email address"}
+              type="email"
+              placeholder={authPortal === "owner" ? "owner@example.com" : "staff@example.com"}
+              autoComplete="email"
+              required
+              error={errors.email?.message}
+              {...register("email")}
+            />
+
+            <Input
+              id="password"
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              required
+              error={errors.password?.message}
+              {...register("password")}
+              rightElement={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="hover:text-slate-600 focus:outline-none"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              }
+            />
+
+            {/* Remember me Checkbox */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer select-none">
+                <input
+                  id="remember_me"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                  {...register("remember_me")}
+                />
+                <span>Remember me for 30 days</span>
+              </label>
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              fullWidth
+              disabled={isSubmitting}
+            >
+              {isSubmitting
+                ? "Authenticating..."
+                : authPortal === "owner"
+                  ? "Sign in as Owner"
+                  : "Sign in as Staff"}
+            </Button>
+
+            {authPortal === "owner" && (
+              <>
+                <div className="relative mt-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm leading-5">
+                    <span className="bg-white px-2 text-slate-500">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  fullWidth
+                  className="mt-1"
+                  onClick={() => {
+                    setLoginMethod("otp");
+                    setServerError("");
+                  }}
+                  disabled={isSubmitting}
+                >
+                  One-Time Password (OTP)
+                </Button>
+              </>
+            )}
+          </form>
+        ) : otpStep === 1 ? (
+          <form className="flex flex-col gap-5" onSubmit={onRequestOtpAndContinue} noValidate>
+            <Input
+              id="otp_email"
+              label="Owner Email Address"
+              type="email"
+              placeholder="owner@example.com"
+              value={otpEmail}
+              onChange={(e) => setOtpEmail(e.target.value)}
+              required
+            />
+            <Button type="submit" size="lg" fullWidth disabled={requestOtpMutation.isPending}>
+              {requestOtpMutation.isPending ? "Sending OTP..." : "Request OTP"}
+            </Button>
+
+            <button
+              type="button"
+              className="text-sm text-slate-500 hover:text-konkan-700 mt-2 hover:underline"
+              onClick={() => {
+                setLoginMethod("password");
+                setServerError("");
+              }}
+              disabled={requestOtpMutation.isPending}
+            >
+              Sign in with password instead
+            </button>
+          </form>
+        ) : (
+          <form className="flex flex-col gap-5" onSubmit={onVerifyOtpSubmit} noValidate>
+            <p className="text-sm font-medium text-slate-700 text-center mb-2">
+              We've sent a 6-digit code to <span className="font-bold text-konkan-700">{otpEmail}</span>.
+            </p>
+            <Input
+              id="login_otp"
+              label="Verification Code"
+              type="text"
+              placeholder="Enter 6-digit OTP"
+              maxLength={6}
+              value={otpValue}
+              onChange={(e) => setOtpValue(e.target.value)}
+              required
+            />
+            <Button type="submit" size="lg" fullWidth disabled={loginOtpMutation.isPending || otpValue.length < 5}>
+              {loginOtpMutation.isPending ? "Verifying..." : "Verify OTP & Sign In"}
+            </Button>
+            <button
+              type="button"
+              className="text-sm text-slate-500 hover:text-konkan-700 mt-2 hover:underline"
+              onClick={() => {
+                setOtpStep(1);
+                setServerError("");
+              }}
+              disabled={loginOtpMutation.isPending}
+            >
+              Change Email
+            </button>
+            <button
+              type="button"
+              className="text-sm text-slate-500 hover:text-konkan-700 hover:underline"
+              onClick={() => {
+                setLoginMethod("password");
+                setOtpStep(1);
+                setServerError("");
+              }}
+              disabled={loginOtpMutation.isPending}
+            >
+              Cancel and sign in with password
+            </button>
+          </form>
+        )}
 
         {/* Register Link (only for owners) */}
         {authPortal === "owner" ? (

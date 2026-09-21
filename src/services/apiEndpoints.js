@@ -2,6 +2,8 @@ export const API_ENDPOINTS = {
   AUTH: {
     REGISTER: "/register",
     LOGIN: "/login",
+    REQUEST_LOGIN_OTP: "/login/request-otp",
+    LOGIN_OTP: "/login/otp",
     UPDATE_PASSWORD: "/update-password",
     LOGIN_LOGS: "/property_owner_login_logs",
     EMPLOYEE_LOGIN: "/auth/employee/login",
